@@ -1,0 +1,15 @@
+includes:
+  - vendor/szepeviktor/phpstan-wordpress/extension.neon
+
+parameters:
+  level: 6
+  paths:
+    - src
+    - wp24h-plugin-boilerplate.php
+    - uninstall.php
+  excludePaths:
+    analyse:
+      - vendor
+  bootstrapFiles:
+    - tests/phpstan-bootstrap.php
+

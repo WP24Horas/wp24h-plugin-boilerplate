@@ -1,0 +1,10 @@
+{
+  "core": "WordPress/WordPress#7.0.3",
+  "phpVersion": "8.1",
+  "plugins": ["."],
+  "config": {
+    "WP_DEBUG": true,
+    "SCRIPT_DEBUG": true
+  }
+}
+
