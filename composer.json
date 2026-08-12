@@ -38,7 +38,10 @@
     "check": [
       "@lint",
       "@analyse",
-      "@test",
+      "@test"
+    ],
+    "check:boilerplate": [
+      "@check",
       "@scaffold:smoke"
     ]
   },
