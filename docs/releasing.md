@@ -11,14 +11,15 @@ Keep these values aligned:
 - `Stable tag` in `readme.txt`.
 - The matching version section in `CHANGELOG.md`.
 
-Run the full boilerplate quality suite:
+Run the plugin quality contract and the boilerplate-specific generator smoke separately:
 
 ```bash
 composer install
-composer check:boilerplate
+composer check
+composer scaffold:smoke
 ```
 
-`composer check:boilerplate` runs the normal plugin quality contract plus the generator smoke test. A plugin produced by the scaffolder keeps the simpler `composer check` contract because it does not carry the project-generation tooling.
+`composer check` is intentionally self-contained and is retained by generated plugins. `composer scaffold:smoke` belongs only to the boilerplate and validates the complete boilerplate → plugin → module generation path.
 
 For the deepest local proof, including dependency installation and `composer check` inside a generated plugin, run:
 
@@ -41,6 +42,6 @@ The `Release` workflow supports two safe entry points:
 1. Run it manually from GitHub Actions and provide a semantic version such as `1.0.0`.
 2. Push a tag matching `v*.*.*`.
 
-Before publishing, the workflow validates version metadata, runs `composer check:boilerplate` and builds the same reproducible ZIP used locally. It then attaches the ZIP to the GitHub Release.
+Before publishing, the workflow validates version metadata, runs `composer check`, runs `composer scaffold:smoke` and builds the same reproducible ZIP used locally. It then attaches the ZIP to the GitHub Release.
 
 Re-running the workflow for an existing release replaces the ZIP asset instead of creating a duplicate release.
