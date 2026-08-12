@@ -31,6 +31,7 @@
     "lint:fix": "phpcbf",
     "analyse": "phpstan analyse --memory-limit=512M",
     "test": "phpunit",
+    "scaffold": "php bin/wp24h-init",
     "check": [
       "@lint",
       "@analyse",
