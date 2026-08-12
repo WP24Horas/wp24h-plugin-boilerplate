@@ -19,6 +19,7 @@ $options = getopt('', [
     'vendor::',
     'author::',
     'author-uri::',
+    'plugin-uri::',
     'target:',
     'help',
 ]);
@@ -33,6 +34,7 @@ $namespace = trim((string) ($options['namespace'] ?? ''));
 $vendor = trim((string) ($options['vendor'] ?? ''));
 $author = trim((string) ($options['author'] ?? ''));
 $authorUri = trim((string) ($options['author-uri'] ?? ''));
+$pluginUri = trim((string) ($options['plugin-uri'] ?? ''));
 $target = trim((string) ($options['target'] ?? ''));
 
 $errors = [];
@@ -59,6 +61,12 @@ if ($vendor === '') {
 
 if (!preg_match('/^[a-z0-9]+(?:-[a-z0-9]+)*$/', $vendor)) {
     $errors[] = '--vendor must use lowercase Composer vendor syntax.';
+}
+
+foreach (['--author-uri' => $authorUri, '--plugin-uri' => $pluginUri] as $label => $uri) {
+    if ($uri !== '' && filter_var($uri, FILTER_VALIDATE_URL) === false) {
+        $errors[] = $label . ' must be a valid URL.';
+    }
 }
 
 if ($errors !== []) {
@@ -124,6 +132,8 @@ try {
         throw new RuntimeException('Could not rename the main plugin file.');
     }
 
+    normalizeGeneratedMainHeader($newMain, $pluginUri);
+
     $generatedScaffolder = $targetPath . DIRECTORY_SEPARATOR . 'bin' . DIRECTORY_SEPARATOR . 'wp24h-init';
     if (is_file($generatedScaffolder)) {
         unlink($generatedScaffolder);
@@ -145,14 +155,16 @@ try {
     }
 
     cleanGeneratedComposer($targetPath);
-    writeGeneratedReadme($targetPath, $name, $slug, $namespace, $package);
+    writeGeneratedReadme($targetPath, $name, $slug, $namespace, $package, $pluginUri);
     writeGeneratedChangelog($targetPath, $name);
+    writeGeneratedSecurityPolicy($targetPath, $name, $authorUri, $pluginUri);
 
     fwrite(STDOUT, "Plugin scaffold created successfully.\n\n");
     fwrite(STDOUT, "Name:       {$name}\n");
     fwrite(STDOUT, "Slug:       {$slug}\n");
     fwrite(STDOUT, "Namespace:  {$namespace}\n");
     fwrite(STDOUT, "Package:    {$package}\n");
+    fwrite(STDOUT, "Plugin URI: " . ($pluginUri !== '' ? $pluginUri : '(not set)') . "\n");
     fwrite(STDOUT, "Target:     {$targetPath}\n\n");
     fwrite(STDOUT, "Next steps:\n");
     fwrite(STDOUT, "  cd \"{$targetPath}\"\n");
@@ -178,6 +190,7 @@ Usage:
     --vendor=acme \\
     --author="Acme Inc." \\
     --author-uri="https://example.com" \\
+    --plugin-uri="https://github.com/acme/acme-orders" \\
     --target="../acme-orders"
 
 Required:
@@ -189,13 +202,16 @@ Required:
 Optional:
   --vendor       Composer vendor. Defaults to the first namespace segment.
   --author       Replaces the default plugin author in the main header.
-  --author-uri   Replaces the default author URL in the main header.
+  --author-uri   Replaces the default author URL and may be referenced by the generated security policy.
+  --plugin-uri   Explicit plugin/repository URL. If omitted, Plugin URI is removed from the generated header.
   --help         Show this help.
 
 Safety:
   - never overwrites an existing target;
   - excludes .git, vendor, dist and the boilerplate composer.lock;
   - replaces kebab, snake, REST, namespace and constant identities deterministically;
+  - never invents a WP24Horas repository URL for a generated plugin;
+  - generates ownership-neutral security guidance;
   - removes scaffolder-only commands and tooling from the generated plugin;
   - removes a partial target if generation fails.
 TXT;
@@ -281,6 +297,24 @@ function isTextFile(string $path, string $contents): bool
     return in_array($extension, $textExtensions, true) && !str_contains($contents, "\0");
 }
 
+function normalizeGeneratedMainHeader(string $mainFile, string $pluginUri): void
+{
+    $contents = file_get_contents($mainFile);
+    if ($contents === false) {
+        throw new RuntimeException('Could not read generated main plugin file.');
+    }
+
+    if ($pluginUri === '') {
+        $contents = (string) preg_replace('/^ \* Plugin URI:\s+.*\R/m', '', $contents);
+    } else {
+        $contents = (string) preg_replace('/^ \* Plugin URI:\s+.*$/m', ' * Plugin URI:  ' . $pluginUri, $contents);
+    }
+
+    if (file_put_contents($mainFile, $contents) === false) {
+        throw new RuntimeException('Could not normalize generated plugin header.');
+    }
+}
+
 function cleanGeneratedComposer(string $targetPath): void
 {
     $composerPath = $targetPath . DIRECTORY_SEPARATOR . 'composer.json';
@@ -309,8 +343,10 @@ function writeGeneratedReadme(
     string $name,
     string $slug,
     string $namespace,
-    string $package
+    string $package,
+    string $pluginUri
 ): void {
+    $projectLink = $pluginUri !== '' ? "\n- Project URL: {$pluginUri}" : '';
     $content = <<<MD
 # {$name}
 
@@ -320,7 +356,7 @@ WordPress plugin generated from the [WP24H Plugin Boilerplate](https://github.co
 
 - Plugin slug / text domain: `{$slug}`
 - PHP namespace: `{$namespace}`
-- Composer package: `{$package}`
+- Composer package: `{$package}`{$projectLink}
 - WordPress 6.5+
 - PHP 8.1+
 - PHPCS + WordPress Coding Standards
@@ -371,6 +407,48 @@ MD;
 
     if (file_put_contents($targetPath . DIRECTORY_SEPARATOR . 'CHANGELOG.md', $content . "\n") === false) {
         throw new RuntimeException('Could not write generated CHANGELOG.md.');
+    }
+}
+
+function writeGeneratedSecurityPolicy(
+    string $targetPath,
+    string $name,
+    string $authorUri,
+    string $pluginUri
+): void {
+    $contact = '';
+    if ($pluginUri !== '') {
+        $contact .= "\nIf this project enables GitHub private vulnerability reporting, use it instead of opening a public issue.";
+    }
+    if ($authorUri !== '') {
+        $contact .= "\n\nMaintainer contact/homepage: <{$authorUri}>.";
+    }
+
+    $content = <<<MD
+# Security policy
+
+## Supported version
+
+Security fixes target the latest maintained release of {$name}.
+
+## Reporting a vulnerability
+
+Do not disclose exploitable details in a public issue.{$contact}
+
+Include enough information for maintainers to validate the report safely:
+
+- affected version and environment;
+- reproduction steps or proof of concept;
+- expected impact;
+- suggested remediation, if known.
+
+Allow reasonable time for validation and coordinated disclosure.
+
+This file was generated without assuming that the project is owned or maintained by WP24Horas. Update the contact channel before the first public release.
+MD;
+
+    if (file_put_contents($targetPath . DIRECTORY_SEPARATOR . 'SECURITY.md', $content . "\n") === false) {
+        throw new RuntimeException('Could not write generated SECURITY.md.');
     }
 }
 
