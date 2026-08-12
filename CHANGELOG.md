@@ -8,13 +8,20 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Added
 
-- Ongoing improvements for the next release.
+- Safe local scaffolder for generating a new plugin with a custom name, slug, PSR-4 namespace, Composer package and constant prefix.
+- Scaffold documentation with deterministic replacement and safety rules.
+- `composer scaffold -- ...` as the recommended plugin creation flow.
+
+### Changed
+
+- Customization guidance now prefers scaffold-first generation over manual search/replace.
+- Production ZIP excludes the scaffolder tooling.
 
 ## [1.0.0] - 2026-08-12
 
 ### Added
 
-- Initial public release of the WP24Horas Plugin Boilerplate.
+- Initial public version of the WP24Horas Plugin Boilerplate.
 - Composer-based development tooling.
 - WordPress Coding Standards via PHPCS.
 - Static analysis with PHPStan.
