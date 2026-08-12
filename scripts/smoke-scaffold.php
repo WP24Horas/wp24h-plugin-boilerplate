@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+$full = in_array('--full', $argv, true);
 $root = dirname(__DIR__);
 $tempBase = rtrim(sys_get_temp_dir(), DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . 'wp24h-scaffold-smoke-' . bin2hex(random_bytes(4));
 $target = $tempBase . DIRECTORY_SEPARATOR . 'acme-orders';
@@ -25,6 +26,7 @@ try {
     assertMissing($target . DIRECTORY_SEPARATOR . 'wp24h-plugin-boilerplate.php');
     assertMissing($target . DIRECTORY_SEPARATOR . 'bin' . DIRECTORY_SEPARATOR . 'wp24h-init');
     assertMissing($target . DIRECTORY_SEPARATOR . 'scripts' . DIRECTORY_SEPARATOR . 'smoke-scaffold.php');
+    assertMissing($target . DIRECTORY_SEPARATOR . 'composer.lock');
 
     $composerPath = $target . DIRECTORY_SEPARATOR . 'composer.json';
     assertFile($composerPath);
@@ -32,6 +34,9 @@ try {
     $composer = json_decode((string) file_get_contents($composerPath), true, 512, JSON_THROW_ON_ERROR);
     assertSame('acme/acme-orders', $composer['name'] ?? null, 'Composer package name');
     assertSame('src/', $composer['autoload']['psr-4']['Acme\\Orders\\'] ?? null, 'Composer PSR-4 namespace');
+    assertFalse(isset($composer['scripts']['scaffold']), 'Generated plugin must not keep the scaffold command.');
+    assertFalse(isset($composer['scripts']['scaffold:smoke']), 'Generated plugin must not keep scaffold smoke commands.');
+    assertFalse(isset($composer['scripts']['scaffold:smoke:full']), 'Generated plugin must not keep full scaffold smoke commands.');
 
     $main = (string) file_get_contents($target . DIRECTORY_SEPARATOR . 'acme-orders.php');
     assertContains('Plugin Name: Acme Orders', $main, 'plugin name');
@@ -64,15 +69,15 @@ try {
         ]
     );
 
-    if (getenv('WP24H_SCAFFOLD_FULL') === '1') {
+    if ($full) {
         $composerBinary = findComposer();
         run([$composerBinary, 'install', '--no-interaction', '--prefer-dist'], $target);
         run([$composerBinary, 'check'], $target);
     }
 
     fwrite(STDOUT, "Scaffold smoke test passed.\n");
-    if (getenv('WP24H_SCAFFOLD_FULL') !== '1') {
-        fwrite(STDOUT, "Set WP24H_SCAFFOLD_FULL=1 to also run composer install + composer check in the generated plugin.\n");
+    if (!$full) {
+        fwrite(STDOUT, "Run with --full to also execute composer install + composer check in the generated plugin.\n");
     }
 } finally {
     removeTree($tempBase);
@@ -140,6 +145,13 @@ function assertSame(mixed $expected, mixed $actual, string $label): void
     }
 }
 
+function assertFalse(bool $condition, string $message): void
+{
+    if ($condition) {
+        throw new RuntimeException($message);
+    }
+}
+
 function assertContains(string $needle, string $haystack, string $label): void
 {
     if (!str_contains($haystack, $needle)) {
@@ -184,12 +196,11 @@ function assertNoLegacyIdentity(string $target, array $tokens, array $ignoredPre
 
 function findComposer(): string
 {
-    $candidates = ['composer'];
-    if (DIRECTORY_SEPARATOR === '\\') {
-        $candidates[] = 'composer.bat';
-    }
+    $candidates = DIRECTORY_SEPARATOR === '\\' ? ['composer.bat', 'composer'] : ['composer'];
 
     foreach ($candidates as $candidate) {
+        $output = [];
+        $exitCode = 1;
         $check = DIRECTORY_SEPARATOR === '\\'
             ? 'where ' . escapeshellarg($candidate)
             : 'command -v ' . escapeshellarg($candidate);
