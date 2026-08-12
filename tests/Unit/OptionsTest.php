@@ -37,6 +37,7 @@ final class OptionsTest extends TestCase {
 		self::assertTrue( $defaults['modules']['rest_api'] );
 		self::assertFalse( $defaults['modules']['dashboard_widget'] );
 		self::assertFalse( $defaults['modules']['admin_notice'] );
+		self::assertFalse( $defaults['modules']['site_health'] );
 	}
 
 	public function test_saved_module_values_override_defaults(): void {
