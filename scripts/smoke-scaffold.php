@@ -51,6 +51,12 @@ try {
     assertNotContains('contact WP24Horas', $security, 'generated security policy ownership');
     assertContains('https://example.com', $security, 'maintainer contact hint');
 
+    $wpOrgReadme = (string) file_get_contents($target . DIRECTORY_SEPARATOR . 'readme.txt');
+    assertContains('=== Acme Orders ===', $wpOrgReadme, 'WordPress.org readme title');
+    assertContains('Stable tag: 1.0.0', $wpOrgReadme, 'WordPress.org stable tag');
+    assertNotContains('Contributors: asllanmaciel', $wpOrgReadme, 'inherited WordPress.org contributor');
+    assertNotContains('This repository is intended as a development starter', $wpOrgReadme, 'inherited boilerplate instructions');
+
     $options = (string) file_get_contents($target . DIRECTORY_SEPARATOR . 'src' . DIRECTORY_SEPARATOR . 'Support' . DIRECTORY_SEPARATOR . 'Options.php');
     assertContains("public const KEY = 'acme_orders_settings';", $options, 'option key');
     assertContains("'rest_namespace' => 'acme-orders/v1'", $options, 'REST namespace');
