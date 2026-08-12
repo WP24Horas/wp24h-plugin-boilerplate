@@ -62,8 +62,11 @@ jobs:
       - name: Install dependencies
         run: composer install --prefer-dist --no-interaction --no-progress
 
-      - name: Run boilerplate quality checks
-        run: composer check:boilerplate
+      - name: Run plugin quality checks
+        run: composer check
+
+      - name: Validate scaffold and module generators
+        run: composer scaffold:smoke
 
       - name: Build distribution package
         run: bash scripts/build-release.sh
