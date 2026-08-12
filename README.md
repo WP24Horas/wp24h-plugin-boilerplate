@@ -79,7 +79,8 @@ A primeira release deve ser criada somente após validação local/runtime da ve
 git clone https://github.com/WP24Horas/wp24h-plugin-boilerplate.git
 cd wp24h-plugin-boilerplate
 composer install
-composer check:boilerplate
+composer check
+composer scaffold:smoke
 ```
 
 Para experimentar no WordPress local:
@@ -131,12 +132,12 @@ composer lint                    # WordPress Coding Standards
 composer lint:fix                # Correções automáticas seguras
 composer analyse                 # PHPStan
 composer test                    # PHPUnit
-composer check                   # Qualidade do plugin: lint + análise + testes
-composer check:boilerplate       # Qualidade da base + smoke dos geradores
+composer tooling:lint            # Sintaxe PHP das ferramentas CLI mantidas no projeto
+composer check                   # Lint + análise + testes + tooling lint
 bash scripts/build-release.sh    # Gera dist/wp24h-plugin-boilerplate.zip
 ```
 
-A separação entre `check` e `check:boilerplate` é intencional: plugins derivados mantêm um contrato de qualidade simples, enquanto a própria base valida também as ferramentas de geração.
+`composer check` é autocontido e continua funcionando no plugin gerado. O smoke do scaffolder é deliberadamente um comando separado porque existe apenas na base.
 
 O processo completo de publicação está documentado em [docs/releasing.md](docs/releasing.md).
 
