@@ -3,6 +3,7 @@
 /.wp-env
 /.wp-env.json
 /.phpunit.cache
+/bin
 /docs
 /tests
 /vendor
