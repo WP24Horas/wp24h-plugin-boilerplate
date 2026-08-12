@@ -39,11 +39,11 @@
     "check": [
       "@lint",
       "@analyse",
-      "@test"
+      "@test",
+      "@tooling:lint"
     ],
     "check:boilerplate": [
       "@check",
-      "@tooling:lint",
       "@scaffold:smoke"
     ]
   },
