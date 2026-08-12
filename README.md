@@ -21,7 +21,8 @@ O projeto funciona imediatamente após ser copiado, mesmo sem `vendor/`, e ofere
 - Política de desinstalação segura: dados são preservados por padrão.
 - Build reproduzível de ZIP e workflow de release preparado para uso quando uma tag for publicada.
 - Scaffolder seguro para criar um plugin novo sem uma sequência manual de `search/replace`.
-- Smoke test local que valida o plugin gerado e pode executar uma prova completa com Composer.
+- Gerador de módulos que continua disponível dentro dos plugins criados pelo scaffolder.
+- Smoke test local que valida o fluxo boilerplate → plugin → módulo e pode executar uma prova completa com Composer.
 
 ## Criar um plugin novo
 
@@ -50,6 +51,22 @@ O comando mantém alinhados nome, slug/text domain, namespace PSR-4, option keys
 
 Veja [docs/scaffolding.md](docs/scaffolding.md) para os detalhes e regras de segurança.
 
+## Criar um módulo
+
+Dentro da base ou de um plugin gerado:
+
+```bash
+composer make:module -- \
+  --class=AuditLogModule \
+  --id=audit_log \
+  --label="Audit log" \
+  --description="Registers audit-log hooks."
+```
+
+O gerador descobre o namespace PSR-4 e o text domain do próprio projeto, cria a classe em `src/Modules/`, cria o teste correspondente em `tests/Unit/` e se recusa a sobrescrever arquivos existentes.
+
+Consulte [docs/module-api.md](docs/module-api.md).
+
 ## Status de release
 
 A versão atual do plugin é **1.0.0**, mas ainda não existe tag ou GitHub Release publicada neste repositório.
@@ -62,7 +79,7 @@ A primeira release deve ser criada somente após validação local/runtime da ve
 git clone https://github.com/WP24Horas/wp24h-plugin-boilerplate.git
 cd wp24h-plugin-boilerplate
 composer install
-composer check
+composer check:boilerplate
 ```
 
 Para experimentar no WordPress local:
@@ -85,33 +102,18 @@ Depois, acesse **Configurações → WP24H Boilerplate**.
 
 Headline, mensagem, cor de destaque e namespace REST podem ser ajustados pela interface.
 
-## Criando um módulo
-
-Implemente `WP24H\PluginBoilerplate\Contracts\Module` e registre a instância:
-
-```php
-add_filter(
-	'wp24h_plugin_boilerplate_modules',
-	static function ( array $modules ): array {
-		$modules[] = new MinhaEmpresa\MeuPlugin\MeuModulo();
-		return $modules;
-	}
-);
-```
-
-O módulo passa a aparecer automaticamente na tela de configurações. Consulte [docs/module-api.md](docs/module-api.md).
-
 ## Transformando em seu plugin
 
-O caminho recomendado agora é usar o scaffolder, em vez de fazer renomeações manuais.
+O caminho recomendado é usar o scaffolder, em vez de fazer renomeações manuais.
 
 Depois da geração:
 
 1. Remova os módulos de exemplo que não fazem sentido.
-2. Defina seus módulos no método `Plugin::build_modules()` ou pelo filtro público.
-3. Atualize descrição, URLs, branding, documentação e licença quando necessário.
-4. Faça uma busca final pelo slug/namespace originais como verificação de higiene.
-5. Rode `composer check` antes de publicar.
+2. Gere novos módulos com `composer make:module -- ...` quando for útil.
+3. Registre os módulos no método `Plugin::build_modules()` ou pelo filtro público.
+4. Atualize descrição, URLs, branding, documentação e licença quando necessário.
+5. Faça uma busca final pelo slug/namespace originais como verificação de higiene.
+6. Rode `composer check` antes de publicar.
 
 O roteiro completo está em [docs/customization.md](docs/customization.md).
 
@@ -119,21 +121,25 @@ O roteiro completo está em [docs/customization.md](docs/customization.md).
 
 ```bash
 composer scaffold -- ...        # Gera um plugin novo a partir da base
-composer scaffold:smoke         # Valida estruturalmente um scaffold temporário
-composer scaffold:smoke:full    # Gera, instala dependências e roda composer check no plugin temporário
+composer make:module -- ...     # Gera classe + teste de um módulo
+composer scaffold:smoke         # Valida boilerplate → plugin → módulo em diretório temporário
+composer scaffold:smoke:full    # Também instala dependências e roda composer check no plugin temporário
 composer lint                    # WordPress Coding Standards
 composer lint:fix                # Correções automáticas seguras
 composer analyse                 # PHPStan
 composer test                    # PHPUnit
-composer check                   # Lint + análise + testes + smoke estrutural do scaffolder
+composer check                   # Qualidade do plugin: lint + análise + testes
+composer check:boilerplate       # Qualidade da base + smoke dos geradores
 bash scripts/build-release.sh    # Gera dist/wp24h-plugin-boilerplate.zip
 ```
+
+A separação entre `check` e `check:boilerplate` é intencional: plugins derivados mantêm um contrato de qualidade simples, enquanto a própria base valida também as ferramentas de geração.
 
 O processo completo de publicação está documentado em [docs/releasing.md](docs/releasing.md).
 
 ## CI e custo
 
-O workflow de qualidade está atualmente em modo manual (`workflow_dispatch`). O loop normal de desenvolvimento usa `composer check` local, preservando a matriz de compatibilidade para execuções deliberadas sem consumir GitHub Actions a cada push.
+O workflow de qualidade está atualmente em modo manual (`workflow_dispatch`). O loop normal de desenvolvimento usa validação local, preservando a matriz de compatibilidade para execuções deliberadas sem consumir GitHub Actions a cada push.
 
 ## Ecossistema WordPress relacionado
 
