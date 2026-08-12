@@ -1,0 +1,255 @@
+#!/usr/bin/env php
+<?php
+
+declare(strict_types=1);
+
+$options = getopt('', [
+    'class:',
+    'id:',
+    'label:',
+    'description::',
+    'help',
+]);
+
+if (isset($options['help'])) {
+    usage(0);
+}
+
+$class = trim((string) ($options['class'] ?? ''));
+$id = trim((string) ($options['id'] ?? ''));
+$label = trim((string) ($options['label'] ?? ''));
+$description = trim((string) ($options['description'] ?? ''));
+
+$errors = [];
+
+if (!preg_match('/^[A-Z][A-Za-z0-9]*Module$/', $class)) {
+    $errors[] = '--class must be PascalCase and end in Module (example: AuditLogModule).';
+}
+
+if (!preg_match('/^[a-z][a-z0-9]*(?:_[a-z0-9]+)*$/', $id)) {
+    $errors[] = '--id must use lowercase snake_case (example: audit_log).';
+}
+
+if ($label === '') {
+    $errors[] = '--label is required.';
+}
+
+if ($errors !== []) {
+    foreach ($errors as $error) {
+        fwrite(STDERR, "Error: {$error}\n");
+    }
+    usage(1);
+}
+
+$root = dirname(__DIR__);
+$identity = detectProjectIdentity($root);
+$modulePath = $root . DIRECTORY_SEPARATOR . 'src' . DIRECTORY_SEPARATOR . 'Modules' . DIRECTORY_SEPARATOR . $class . '.php';
+$testPath = $root . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR . 'Unit' . DIRECTORY_SEPARATOR . $class . 'Test.php';
+
+foreach ([$modulePath, $testPath] as $path) {
+    if (file_exists($path)) {
+        fwrite(STDERR, "Error: refusing to overwrite existing file: {$path}\n");
+        exit(1);
+    }
+}
+
+$description = $description !== '' ? $description : 'Describe what this module adds to the plugin.';
+
+$module = renderModule(
+    $identity['namespace'],
+    $identity['text_domain'],
+    $class,
+    $id,
+    $label,
+    $description
+);
+$test = renderTest($identity['namespace'], $class, $id, $label);
+
+writeFile($modulePath, $module);
+writeFile($testPath, $test);
+
+fwrite(STDOUT, "Module generated successfully.\n\n");
+fwrite(STDOUT, "Class:  {$identity['namespace']}\\Modules\\{$class}\n");
+fwrite(STDOUT, "ID:     {$id}\n");
+fwrite(STDOUT, "Source: {$modulePath}\n");
+fwrite(STDOUT, "Test:   {$testPath}\n\n");
+fwrite(STDOUT, "Next steps:\n");
+fwrite(STDOUT, "  1. Add hooks inside {$class}::register().\n");
+fwrite(STDOUT, "  2. Register the module in Core\\Plugin::build_modules() or through the public module filter.\n");
+fwrite(STDOUT, "  3. Run composer check.\n");
+
+function usage(int $exitCode): never
+{
+    $script = basename(__FILE__);
+    $message = <<<TXT
+WP24H module generator
+
+Usage:
+  php bin/{$script} \\
+    --class=AuditLogModule \\
+    --id=audit_log \\
+    --label="Audit log" \\
+    --description="Registers audit-log hooks."
+
+Required:
+  --class        PascalCase class name ending in Module.
+  --id           Stable lowercase snake_case module identifier.
+  --label        Human-readable module label.
+
+Optional:
+  --description  Human-readable description.
+  --help         Show this help.
+
+The generator infers the root PSR-4 namespace from composer.json and the text domain
+from the main plugin header. It never overwrites an existing source or test file.
+TXT;
+
+    fwrite($exitCode === 0 ? STDOUT : STDERR, $message . "\n");
+    exit($exitCode);
+}
+
+/**
+ * @return array{namespace:string,text_domain:string}
+ */
+function detectProjectIdentity(string $root): array
+{
+    $composerPath = $root . DIRECTORY_SEPARATOR . 'composer.json';
+    $composerContents = file_get_contents($composerPath);
+    if ($composerContents === false) {
+        throw new RuntimeException('Could not read composer.json.');
+    }
+
+    $composer = json_decode($composerContents, true, 512, JSON_THROW_ON_ERROR);
+    $autoload = $composer['autoload']['psr-4'] ?? null;
+    if (!is_array($autoload)) {
+        throw new RuntimeException('composer.json does not define autoload.psr-4.');
+    }
+
+    $namespace = '';
+    foreach ($autoload as $candidate => $path) {
+        if ($path === 'src/' || $path === 'src') {
+            $namespace = rtrim((string) $candidate, '\\');
+            break;
+        }
+    }
+
+    if ($namespace === '') {
+        throw new RuntimeException('Could not infer the root namespace mapped to src/.');
+    }
+
+    $textDomain = detectTextDomain($root);
+
+    return [
+        'namespace' => $namespace,
+        'text_domain' => $textDomain,
+    ];
+}
+
+function detectTextDomain(string $root): string
+{
+    $candidates = glob($root . DIRECTORY_SEPARATOR . '*.php') ?: [];
+
+    foreach ($candidates as $candidate) {
+        $contents = file_get_contents($candidate);
+        if ($contents === false) {
+            continue;
+        }
+
+        if (preg_match('/^\s*\*?\s*Text Domain:\s*([^\s]+)\s*$/mi', $contents, $matches) === 1) {
+            return trim($matches[1]);
+        }
+    }
+
+    throw new RuntimeException('Could not infer Text Domain from a root plugin PHP file.');
+}
+
+function renderModule(
+    string $namespace,
+    string $textDomain,
+    string $class,
+    string $id,
+    string $label,
+    string $description
+): string {
+    $labelLiteral = phpString($label);
+    $descriptionLiteral = phpString($description);
+
+    return <<<PHP
+<?php
+/**
+ * {$label} module.
+ *
+ * @package {$namespace}
+ */
+
+namespace {$namespace}\\Modules;
+
+use {$namespace}\\Contracts\\Module;
+
+final class {$class} implements Module {
+\tpublic function id(): string {
+\t\treturn '{$id}';
+\t}
+
+\tpublic function label(): string {
+\t\treturn __( {$labelLiteral}, '{$textDomain}' );
+\t}
+
+\tpublic function description(): string {
+\t\treturn __( {$descriptionLiteral}, '{$textDomain}' );
+\t}
+
+\tpublic function register(): void {
+\t\t// Register this module's WordPress hooks here.
+\t}
+}
+
+PHP;
+}
+
+function renderTest(string $namespace, string $class, string $id, string $label): string
+{
+    $labelLiteral = phpString($label);
+
+    return <<<PHP
+<?php
+/**
+ * {$class} tests.
+ *
+ * @package {$namespace}\\Tests
+ */
+
+namespace {$namespace}\\Tests\\Unit;
+
+use PHPUnit\\Framework\\TestCase;
+use {$namespace}\\Modules\\{$class};
+
+final class {$class}Test extends TestCase {
+\tpublic function test_module_exposes_stable_identity(): void {
+\t\t\$module = new {$class}();
+
+\t\tself::assertSame( '{$id}', \$module->id() );
+\t\tself::assertSame( {$labelLiteral}, \$module->label() );
+\t\tself::assertNotSame( '', \$module->description() );
+\t}
+}
+
+PHP;
+}
+
+function phpString(string $value): string
+{
+    return var_export($value, true);
+}
+
+function writeFile(string $path, string $contents): void
+{
+    $directory = dirname($path);
+    if (!is_dir($directory) && !mkdir($directory, 0775, true) && !is_dir($directory)) {
+        throw new RuntimeException('Could not create directory: ' . $directory);
+    }
+
+    if (file_put_contents($path, $contents) === false) {
+        throw new RuntimeException('Could not write file: ' . $path);
+    }
+}
