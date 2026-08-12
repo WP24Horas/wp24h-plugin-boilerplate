@@ -13,21 +13,28 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - `composer scaffold -- ...` as the recommended plugin creation flow.
 - Structural scaffold smoke test covering generated identity and removal of boilerplate-only tooling.
 - Optional full scaffold smoke mode that runs `composer install` and `composer check` inside the generated plugin.
+- Module generator exposed through `composer make:module -- ...`, with automatic namespace/text-domain detection and source/test generation.
+- Scaffold smoke coverage for the retained module generator and overwrite protection.
 - Optional Site Health diagnostics module with direct runtime baseline checks.
 - Unit coverage for Site Health registration and result shape.
+- Optional protected REST POST example with capability checks, argument validation and sanitization.
+- Unit coverage for protected REST registration, authorization, validation and sanitization.
+- REST API guide explaining public read-only versus protected administrative routes.
 - Optional `--plugin-uri` support for explicit generated-project metadata.
-- Ownership-neutral generated `SECURITY.md` guidance.
+- Ownership-neutral generated `SECURITY.md` and `readme.txt` guidance.
 
 ### Changed
 
 - Scaffold identity replacement now covers kebab-case, snake_case, REST namespace, PSR-4 namespace and constant prefixes to reduce collision risk.
 - Generated plugins no longer inherit the boilerplate `composer.lock` or generator-only Composer commands.
+- Generated plugins retain the module generator as part of their development experience.
 - Generated plugin headers omit `Plugin URI` when no explicit project URL is supplied instead of inventing a WP24Horas repository URL.
-- Scaffold smoke coverage now verifies explicit and omitted plugin URI behavior plus neutral security metadata.
-- `composer check` now includes the structural scaffold smoke test.
-- Customization guidance now prefers scaffold-first generation over manual search/replace.
-- Production ZIP excludes the scaffolder tooling.
-- README documents the optional Site Health module and scaffold validation commands.
+- Scaffold smoke coverage now verifies explicit and omitted plugin URI behavior plus neutral security/readme metadata.
+- Quality commands are split intentionally: `composer check` validates plugin code while `composer check:boilerplate` also validates generator tooling.
+- Release validation now runs `composer check:boilerplate`.
+- Customization guidance prefers scaffold-first generation over manual search/replace.
+- Production ZIP excludes all generator and development tooling.
+- README documents Site Health, protected REST, module generation and the two quality tiers.
 
 ## [1.0.0] - 2026-08-12
 
