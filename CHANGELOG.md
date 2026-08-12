@@ -15,6 +15,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - Optional full scaffold smoke mode that runs `composer install` and `composer check` inside the generated plugin.
 - Module generator exposed through `composer make:module -- ...`, with automatic namespace/text-domain detection and source/test generation.
 - Scaffold smoke coverage for the retained module generator and overwrite protection.
+- PHP syntax lint for retained CLI tooling under `bin/` and `scripts/`.
 - Optional Site Health diagnostics module with direct runtime baseline checks.
 - Unit coverage for Site Health registration and result shape.
 - Optional protected REST POST example with capability checks, argument validation and sanitization.
@@ -27,14 +28,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 - Scaffold identity replacement now covers kebab-case, snake_case, REST namespace, PSR-4 namespace and constant prefixes to reduce collision risk.
 - Generated plugins no longer inherit the boilerplate `composer.lock` or generator-only Composer commands.
-- Generated plugins retain the module generator as part of their development experience.
+- Generated plugins retain the module generator and tooling syntax lint as part of their development experience.
 - Generated plugin headers omit `Plugin URI` when no explicit project URL is supplied instead of inventing a WP24Horas repository URL.
-- Scaffold smoke coverage now verifies explicit and omitted plugin URI behavior plus neutral security/readme metadata.
-- Quality commands are split intentionally: `composer check` validates plugin code while `composer check:boilerplate` also validates generator tooling.
-- Release validation now runs `composer check:boilerplate`.
+- Scaffold smoke coverage verifies explicit and omitted plugin URI behavior plus neutral security/readme metadata.
+- `composer check` is now a self-contained plugin contract: PHPCS, PHPStan, PHPUnit and retained-tooling syntax lint.
+- Boilerplate-only scaffold validation remains an explicit `composer scaffold:smoke` command so generated Composer scripts never contain dead references.
+- Release validation runs both `composer check` and `composer scaffold:smoke` explicitly.
 - Customization guidance prefers scaffold-first generation over manual search/replace.
 - Production ZIP excludes all generator and development tooling.
-- README documents Site Health, protected REST, module generation and the two quality tiers.
+- README documents Site Health, protected REST, module generation and local validation commands.
 
 ## [1.0.0] - 2026-08-12
 
