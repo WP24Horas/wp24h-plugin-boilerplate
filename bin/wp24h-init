@@ -156,6 +156,7 @@ try {
 
     cleanGeneratedComposer($targetPath);
     writeGeneratedReadme($targetPath, $name, $slug, $namespace, $package, $pluginUri);
+    writeGeneratedWpOrgReadme($targetPath, $name);
     writeGeneratedChangelog($targetPath, $name);
     writeGeneratedSecurityPolicy($targetPath, $name, $authorUri, $pluginUri);
 
@@ -211,7 +212,7 @@ Safety:
   - excludes .git, vendor, dist and the boilerplate composer.lock;
   - replaces kebab, snake, REST, namespace and constant identities deterministically;
   - never invents a WP24Horas repository URL for a generated plugin;
-  - generates ownership-neutral security guidance;
+  - generates ownership-neutral README, readme.txt, changelog and security guidance;
   - removes scaffolder-only commands and tooling from the generated plugin;
   - removes a partial target if generation fails.
 TXT;
@@ -388,6 +389,44 @@ MD;
 
     if (file_put_contents($targetPath . DIRECTORY_SEPARATOR . 'README.md', $content . "\n") === false) {
         throw new RuntimeException('Could not write generated README.md.');
+    }
+}
+
+function writeGeneratedWpOrgReadme(string $targetPath, string $name): void
+{
+    $content = <<<TXT
+=== {$name} ===
+Requires at least: 6.5
+Tested up to: 7.0
+Requires PHP: 8.1
+Stable tag: 1.0.0
+License: GPLv2 or later
+License URI: https://www.gnu.org/licenses/gpl-2.0.html
+
+WordPress plugin scaffold generated from WP24H Plugin Boilerplate. Replace this summary before the first public release.
+
+== Description ==
+
+This file is intentionally ownership-neutral. Replace this section with the real plugin description, supported workflows and user-facing behavior before submitting to WordPress.org.
+
+The generated project includes a modular PHP architecture, development tooling, tests, static analysis and safe extension points inherited from the WP24H Plugin Boilerplate.
+
+== Installation ==
+
+1. Install the plugin directory in `wp-content/plugins`.
+2. Run `composer install` when using the development tooling.
+3. Run `composer check` before distribution.
+4. Activate the plugin in WordPress.
+5. Review and remove example modules that are not part of the final product.
+
+== Changelog ==
+
+= 1.0.0 =
+* Initial scaffold. Replace this entry with the first real release notes before distribution.
+TXT;
+
+    if (file_put_contents($targetPath . DIRECTORY_SEPARATOR . 'readme.txt', $content . "\n") === false) {
+        throw new RuntimeException('Could not write generated readme.txt.');
     }
 }
 
