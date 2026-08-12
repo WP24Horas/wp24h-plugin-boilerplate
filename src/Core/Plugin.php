@@ -13,6 +13,7 @@ use WP24H\PluginBoilerplate\Modules\AdminNoticeModule;
 use WP24H\PluginBoilerplate\Modules\DashboardWidgetModule;
 use WP24H\PluginBoilerplate\Modules\RestApiModule;
 use WP24H\PluginBoilerplate\Modules\ShortcodeModule;
+use WP24H\PluginBoilerplate\Modules\SiteHealthModule;
 use WP24H\PluginBoilerplate\Support\Options;
 
 final class Plugin {
@@ -86,6 +87,7 @@ final class Plugin {
 			new RestApiModule( $this->options ),
 			new DashboardWidgetModule( $this->options ),
 			new AdminNoticeModule( $this->options ),
+			new SiteHealthModule(),
 		);
 
 		/**
