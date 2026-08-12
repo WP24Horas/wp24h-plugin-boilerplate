@@ -11,14 +11,19 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - Safe local scaffolder for generating a new plugin with a custom name, slug, PSR-4 namespace, Composer package and constant prefix.
 - Scaffold documentation with deterministic replacement and safety rules.
 - `composer scaffold -- ...` as the recommended plugin creation flow.
+- Structural scaffold smoke test covering generated identity and removal of boilerplate-only tooling.
+- Optional full scaffold smoke mode that runs `composer install` and `composer check` inside the generated plugin.
 - Optional Site Health diagnostics module with direct runtime baseline checks.
 - Unit coverage for Site Health registration and result shape.
 
 ### Changed
 
+- Scaffold identity replacement now covers kebab-case, snake_case, REST namespace, PSR-4 namespace and constant prefixes to reduce collision risk.
+- Generated plugins no longer inherit the boilerplate `composer.lock` or generator-only Composer commands.
+- `composer check` now includes the structural scaffold smoke test.
 - Customization guidance now prefers scaffold-first generation over manual search/replace.
 - Production ZIP excludes the scaffolder tooling.
-- README now documents the optional Site Health module.
+- README documents the optional Site Health module and scaffold validation commands.
 
 ## [1.0.0] - 2026-08-12
 
