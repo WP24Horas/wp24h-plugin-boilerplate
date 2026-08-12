@@ -30,11 +30,12 @@ final class OptionsTest extends TestCase {
 		parent::tearDown();
 	}
 
-	public function test_defaults_enable_safe_public_examples(): void {
+	public function test_defaults_enable_only_safe_public_examples(): void {
 		$defaults = Options::defaults();
 
 		self::assertTrue( $defaults['modules']['shortcode'] );
 		self::assertTrue( $defaults['modules']['rest_api'] );
+		self::assertFalse( $defaults['modules']['protected_rest'] );
 		self::assertFalse( $defaults['modules']['dashboard_widget'] );
 		self::assertFalse( $defaults['modules']['admin_notice'] );
 		self::assertFalse( $defaults['modules']['site_health'] );
@@ -56,5 +57,6 @@ final class OptionsTest extends TestCase {
 
 		self::assertFalse( $options->module_enabled( 'shortcode' ) );
 		self::assertTrue( $options->module_enabled( 'rest_api' ) );
+		self::assertFalse( $options->module_enabled( 'protected_rest' ) );
 	}
 }
