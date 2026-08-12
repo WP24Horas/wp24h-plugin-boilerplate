@@ -6,6 +6,7 @@ $full = in_array('--full', $argv, true);
 $root = dirname(__DIR__);
 $tempBase = rtrim(sys_get_temp_dir(), DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . 'wp24h-scaffold-smoke-' . bin2hex(random_bytes(4));
 $target = $tempBase . DIRECTORY_SEPARATOR . 'acme-orders';
+$targetWithUri = $tempBase . DIRECTORY_SEPARATOR . 'acme-orders-with-uri';
 
 $command = [
     PHP_BINARY,
@@ -43,6 +44,12 @@ try {
     assertContains('Text Domain: acme-orders', $main, 'text domain');
     assertContains("define( 'ACME_ORDERS_VERSION'", $main, 'constant prefix');
     assertContains('Acme\\Orders\\Core\\Plugin::class', $main, 'runtime namespace');
+    assertNotContains('Plugin URI:', $main, 'plugin header without explicit URI');
+    assertNotContains('github.com/WP24Horas/acme-orders', $main, 'invented repository URL');
+
+    $security = (string) file_get_contents($target . DIRECTORY_SEPARATOR . 'SECURITY.md');
+    assertNotContains('contact WP24Horas', $security, 'generated security policy ownership');
+    assertContains('https://example.com', $security, 'maintainer contact hint');
 
     $options = (string) file_get_contents($target . DIRECTORY_SEPARATOR . 'src' . DIRECTORY_SEPARATOR . 'Support' . DIRECTORY_SEPARATOR . 'Options.php');
     assertContains("public const KEY = 'acme_orders_settings';", $options, 'option key');
@@ -68,6 +75,24 @@ try {
             'LICENSE.md',
         ]
     );
+
+    run(
+        [
+            PHP_BINARY,
+            $root . DIRECTORY_SEPARATOR . 'bin' . DIRECTORY_SEPARATOR . 'wp24h-init',
+            '--name=Acme Orders',
+            '--slug=acme-orders-uri',
+            '--namespace=Acme\\OrdersUri',
+            '--vendor=acme',
+            '--plugin-uri=https://github.com/acme/acme-orders',
+            '--target=' . $targetWithUri,
+        ],
+        $root
+    );
+
+    $mainWithUri = (string) file_get_contents($targetWithUri . DIRECTORY_SEPARATOR . 'acme-orders-uri.php');
+    assertContains('Plugin URI:  https://github.com/acme/acme-orders', $mainWithUri, 'explicit plugin URI');
+    assertNotContains('github.com/WP24Horas/acme-orders-uri', $mainWithUri, 'invented explicit repository URL');
 
     if ($full) {
         $composerBinary = findComposer();
@@ -156,6 +181,13 @@ function assertContains(string $needle, string $haystack, string $label): void
 {
     if (!str_contains($haystack, $needle)) {
         throw new RuntimeException(sprintf('Generated %s is missing expected value: %s', $label, $needle));
+    }
+}
+
+function assertNotContains(string $needle, string $haystack, string $label): void
+{
+    if (str_contains($haystack, $needle)) {
+        throw new RuntimeException(sprintf('Generated %s contains unexpected value: %s', $label, $needle));
     }
 }
 
