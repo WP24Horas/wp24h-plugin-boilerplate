@@ -1,9 +1,7 @@
 name: CI
 
 on:
-  push:
-    branches: [main]
-  pull_request:
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -38,4 +36,3 @@ jobs:
 
       - name: Unit tests
         run: composer test
-
