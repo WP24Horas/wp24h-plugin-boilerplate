@@ -16,6 +16,7 @@ composer scaffold -- \
   --vendor=acme \
   --author="Acme Inc." \
   --author-uri="https://example.com" \
+  --plugin-uri="https://github.com/acme/acme-orders" \
   --target="../acme-orders"
 ```
 
@@ -24,6 +25,8 @@ Também é possível chamar o script diretamente:
 ```bash
 php bin/wp24h-init --help
 ```
+
+`--plugin-uri` é opcional. Quando não for informado, o scaffolder remove a linha `Plugin URI` do cabeçalho em vez de inventar um repositório sob a organização WP24Horas.
 
 ## O que é alterado
 
@@ -44,6 +47,20 @@ Isso mantém alinhados o cabeçalho principal, text domain, namespace PSR-4, con
 
 O `composer.lock` do boilerplate não é copiado, e comandos exclusivos do gerador (`scaffold` e seus smoke tests) são removidos do `composer.json` do novo plugin.
 
+## Runtime identity vs. ownership metadata
+
+O scaffolder trata essas duas categorias separadamente.
+
+**Runtime identity** pode ser derivada deterministicamente do slug/namespace: text domain, hooks, option keys, constantes, REST namespace e package Composer.
+
+**Ownership metadata** não deve ser inventada. Ela depende de quem realmente mantém o novo projeto. Por isso:
+
+- `Plugin URI` só é incluída quando `--plugin-uri` é fornecido;
+- `--author-uri` é opcional e pode funcionar como referência de contato do mantenedor;
+- o `SECURITY.md` gerado é neutro e não direciona vulnerabilidades à WP24Horas por padrão;
+- o README pode registrar a URL explícita do projeto quando ela existir;
+- o plugin gerado deve revisar seus próprios canais de suporte e segurança antes da primeira release.
+
 ## Regras de segurança
 
 O comando é deliberadamente conservador:
@@ -54,11 +71,13 @@ O comando é deliberadamente conservador:
 - se a geração falhar, o target parcial é removido;
 - o slug precisa estar em `kebab-case` minúsculo;
 - o namespace precisa ter pelo menos dois segmentos PSR-4;
-- nenhum arquivo existente fora do target é alterado.
+- URLs opcionais precisam ser válidas;
+- nenhum arquivo existente fora do target é alterado;
+- nenhuma URL de repositório WP24Horas é inventada para o novo projeto.
 
 ## Validando o próprio scaffolder
 
-A base possui um smoke test local que gera um plugin temporário e valida:
+A base possui um smoke test local que gera plugins temporários e valida:
 
 - nome do arquivo principal;
 - plugin name e text domain;
@@ -68,7 +87,10 @@ A base possui um smoke test local que gera um plugin temporário e valida:
 - option key e hooks públicos;
 - namespace REST;
 - remoção das ferramentas exclusivas do boilerplate;
-- ausência dos identificadores antigos no código/configuração gerados.
+- ausência dos identificadores antigos no código/configuração gerados;
+- ausência de `Plugin URI` quando nenhuma URL é fornecida;
+- uso exato de `--plugin-uri` quando fornecido;
+- política de segurança sem ownership implícito da WP24Horas.
 
 Execute:
 
@@ -101,7 +123,7 @@ Depois revise pelo menos:
 1. descrição e URLs do plugin;
 2. módulos de exemplo que deseja manter;
 3. README e `readme.txt` para refletir o produto real;
-4. política de licença, autoria e canal de segurança;
+4. política de licença, autoria, suporte e canal de segurança;
 5. namespace, slug, hooks e text domain com uma busca final;
 6. ZIP de distribuição antes do primeiro release.
 
@@ -109,4 +131,4 @@ Depois revise pelo menos:
 
 Boilerplates antigos frequentemente pedem ao desenvolvedor para renomear manualmente arquivos, classes, constantes e text domains. Esse processo funciona, mas é fácil deixar uma referência antiga escondida em testes, Composer, documentação ou código de fallback.
 
-O scaffolder existe para automatizar apenas transformações determinísticas e deixar decisões de produto — descrição, URLs, módulos, branding e release — explícitas para o desenvolvedor.
+O scaffolder existe para automatizar apenas transformações determinísticas e deixar decisões de produto — descrição, ownership, URLs, módulos, branding e release — explícitas para o desenvolvedor.
