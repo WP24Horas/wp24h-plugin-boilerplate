@@ -98,6 +98,15 @@ O processo completo de publicação está documentado em [docs/releasing.md](doc
 
 O workflow de qualidade está atualmente em modo manual (`workflow_dispatch`). O loop normal de desenvolvimento usa `composer check` local, preservando a matriz de compatibilidade para execuções deliberadas sem consumir GitHub Actions a cada push.
 
+## Ecossistema WordPress relacionado
+
+Este boilerplate é a base de arquitetura do conjunto de ferramentas WordPress mantidas pela WP24Horas e pelo mantenedor.
+
+- **[WP Plugin Readme Validator](https://github.com/asllanmaciel/wp-plugin-readme-validator)** — valida `readme.txt` e o cabeçalho principal do plugin antes de uma publicação.
+- **[WP24H MD Importer](https://github.com/asllanmaciel/wp24h-md-importer)** — plugin real que demonstra importação de Markdown, REST autenticada, capabilities, mídia e automação editorial.
+
+Os projetos têm objetivos diferentes: o Boilerplate ensina estrutura, o Validator protege metadados de distribuição e o MD Importer mostra padrões aplicados em um plugin funcional.
+
 ## Compatibilidade
 
 - WordPress: 6.5 ou superior; testado até 7.0.
@@ -114,4 +123,3 @@ Issues e pull requests são bem-vindos. Leia [CONTRIBUTING.md](CONTRIBUTING.md) 
 ## Licença
 
 GPL-2.0-or-later. Consulte [LICENSE.md](LICENSE.md).
-
