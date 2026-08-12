@@ -80,9 +80,12 @@ if (!mkdir($targetPath, 0775, true) && !is_dir($targetPath)) {
 
 $prefix = strtoupper(str_replace('-', '_', $slug));
 $package = $vendor . '/' . $slug;
+$escapedSourceNamespace = str_replace('\\', '\\\\', SOURCE_NAMESPACE);
+$escapedTargetNamespace = str_replace('\\', '\\\\', $namespace);
 
 $replacements = [
     SOURCE_PACKAGE => $package,
+    $escapedSourceNamespace => $escapedTargetNamespace,
     SOURCE_NAMESPACE => $namespace,
     SOURCE_PREFIX => $prefix,
     SOURCE_SLUG => $slug,
@@ -122,6 +125,14 @@ try {
     if (is_dir($binDir) && directoryIsEmpty($binDir)) {
         rmdir($binDir);
     }
+
+    $scaffoldingDoc = $targetPath . DIRECTORY_SEPARATOR . 'docs' . DIRECTORY_SEPARATOR . 'scaffolding.md';
+    if (is_file($scaffoldingDoc)) {
+        unlink($scaffoldingDoc);
+    }
+
+    writeGeneratedReadme($targetPath, $name, $slug, $namespace, $package);
+    writeGeneratedChangelog($targetPath, $name);
 
     fwrite(STDOUT, "Plugin scaffold created successfully.\n\n");
     fwrite(STDOUT, "Name:       {$name}\n");
@@ -253,6 +264,76 @@ function isTextFile(string $path, string $contents): bool
     ];
 
     return in_array($extension, $textExtensions, true) && !str_contains($contents, "\0");
+}
+
+function writeGeneratedReadme(
+    string $targetPath,
+    string $name,
+    string $slug,
+    string $namespace,
+    string $package
+): void {
+    $content = <<<MD
+# {$name}
+
+WordPress plugin generated from the [WP24H Plugin Boilerplate](https://github.com/WP24Horas/wp24h-plugin-boilerplate).
+
+## Technical baseline
+
+- Plugin slug / text domain: `{$slug}`
+- PHP namespace: `{$namespace}`
+- Composer package: `{$package}`
+- WordPress 6.5+
+- PHP 8.1+
+- PHPCS + WordPress Coding Standards
+- PHPStan
+- PHPUnit + Brain Monkey
+- Optional local environment with `wp-env`
+
+## Development
+
+```bash
+composer install
+composer check
+```
+
+Review the example modules under `src/Modules/` and remove features that are not part of the real plugin before the first release.
+
+## Documentation
+
+- `docs/customization.md`
+- `docs/module-api.md`
+- `docs/releasing.md`
+- `SECURITY.md`
+- `CONTRIBUTING.md`
+
+## License
+
+GPL-2.0-or-later. Review the license and project metadata before distribution.
+MD;
+
+    if (file_put_contents($targetPath . DIRECTORY_SEPARATOR . 'README.md', $content . "\n") === false) {
+        throw new RuntimeException('Could not write generated README.md.');
+    }
+}
+
+function writeGeneratedChangelog(string $targetPath, string $name): void
+{
+    $content = <<<MD
+# Changelog
+
+All notable changes to {$name} will be documented in this file.
+
+## [Unreleased]
+
+### Added
+
+- Initial project scaffold generated from WP24H Plugin Boilerplate.
+MD;
+
+    if (file_put_contents($targetPath . DIRECTORY_SEPARATOR . 'CHANGELOG.md', $content . "\n") === false) {
+        throw new RuntimeException('Could not write generated CHANGELOG.md.');
+    }
 }
 
 function directoryIsEmpty(string $directory): bool
