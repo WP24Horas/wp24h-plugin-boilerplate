@@ -11,6 +11,7 @@ use WP24H\PluginBoilerplate\Admin\SettingsPage;
 use WP24H\PluginBoilerplate\Contracts\Module;
 use WP24H\PluginBoilerplate\Modules\AdminNoticeModule;
 use WP24H\PluginBoilerplate\Modules\DashboardWidgetModule;
+use WP24H\PluginBoilerplate\Modules\ProtectedRestModule;
 use WP24H\PluginBoilerplate\Modules\RestApiModule;
 use WP24H\PluginBoilerplate\Modules\ShortcodeModule;
 use WP24H\PluginBoilerplate\Modules\SiteHealthModule;
@@ -85,6 +86,7 @@ final class Plugin {
 		$modules = array(
 			new ShortcodeModule( $this->options ),
 			new RestApiModule( $this->options ),
+			new ProtectedRestModule( $this->options ),
 			new DashboardWidgetModule( $this->options ),
 			new AdminNoticeModule( $this->options ),
 			new SiteHealthModule(),
