@@ -6,6 +6,8 @@
 /docs
 /tests
 /vendor
+/scripts
+/dist
 /.editorconfig
 /.gitignore
 /composer.json
