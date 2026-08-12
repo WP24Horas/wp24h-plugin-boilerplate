@@ -9,7 +9,7 @@ O projeto funciona imediatamente após ser copiado, mesmo sem `vendor/`, e ofere
 - Arquitetura orientada a módulos com contrato público e registro via filtro.
 - Tela de configurações usando a Settings API do WordPress.
 - Ativação individual de recursos sem editar código.
-- Exemplos funcionais de shortcode, endpoint REST, widget do painel e aviso administrativo.
+- Exemplos funcionais de shortcode, endpoint REST, widget do painel, aviso administrativo e diagnóstico via Site Health.
 - Sanitização, escape, verificação de capacidade e callbacks REST explícitos.
 - Internacionalização e carregamento de text domain.
 - Compatibilidade com WordPress 6.5+ e PHP 8.1+.
@@ -80,6 +80,7 @@ Depois, acesse **Configurações → WP24H Boilerplate**.
 | REST API | Ativo | Expõe `GET /wp-json/wp24h-boilerplate/v1/message` |
 | Dashboard widget | Inativo | Adiciona um card ao painel administrativo |
 | Admin notice | Inativo | Mostra uma mensagem apenas a administradores |
+| Site Health | Inativo | Adiciona um teste direto de baseline de WordPress/PHP em Ferramentas → Saúde do site |
 
 Headline, mensagem, cor de destaque e namespace REST podem ser ajustados pela interface.
 
