@@ -16,10 +16,16 @@ O projeto funciona imediatamente após ser copiado, mesmo sem `vendor/`, e ofere
 - PHPCS com WordPress Coding Standards e PHPCompatibility.
 - PHPStan com extensões para WordPress.
 - PHPUnit com Brain Monkey.
-- Matriz de CI para PHP 8.1, 8.2, 8.3 e 8.4.
+- Matriz de compatibilidade para PHP 8.1, 8.2, 8.3 e 8.4 em workflow manual.
 - Ambiente local opcional com `wp-env`.
 - Política de desinstalação segura: dados são preservados por padrão.
-- Build reproduzível de ZIP e workflow validado para GitHub Releases.
+- Build reproduzível de ZIP e workflow de release preparado para uso quando uma tag for publicada.
+
+## Status de release
+
+A versão atual do plugin é **1.0.0**, mas ainda não existe tag ou GitHub Release publicada neste repositório.
+
+A primeira release deve ser criada somente após validação local/runtime da versão atual. O processo completo está em [docs/releasing.md](docs/releasing.md).
 
 ## Instalação rápida
 
@@ -88,10 +94,14 @@ bash scripts/build-release.sh  # Gera dist/wp24h-plugin-boilerplate.zip
 
 O processo completo de publicação está documentado em [docs/releasing.md](docs/releasing.md).
 
+## CI e custo
+
+O workflow de qualidade está atualmente em modo manual (`workflow_dispatch`). O loop normal de desenvolvimento usa `composer check` local, preservando a matriz de compatibilidade para execuções deliberadas sem consumir GitHub Actions a cada push.
+
 ## Compatibilidade
 
 - WordPress: 6.5 ou superior; testado até 7.0.
-- PHP: 8.1 a 8.4 na matriz de CI.
+- PHP: 8.1 a 8.4 na matriz de compatibilidade.
 
 ## Segurança
 
