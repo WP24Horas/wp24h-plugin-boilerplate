@@ -22,6 +22,7 @@ final class Options {
 				'rest_api'         => true,
 				'dashboard_widget' => false,
 				'admin_notice'     => false,
+				'site_health'      => false,
 			),
 			'headline'       => __( 'Built with the WP24H Plugin Boilerplate', 'wp24h-plugin-boilerplate' ),
 			'message'        => __( 'Replace this message in Settings → WP24H Boilerplate.', 'wp24h-plugin-boilerplate' ),
