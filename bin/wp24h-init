@@ -111,6 +111,7 @@ $excludedTopLevel = [
     '.git',
     'vendor',
     'dist',
+    'composer.lock',
 ];
 
 try {
@@ -143,6 +144,7 @@ try {
         unlink($scaffoldingDoc);
     }
 
+    cleanGeneratedComposer($targetPath);
     writeGeneratedReadme($targetPath, $name, $slug, $namespace, $package);
     writeGeneratedChangelog($targetPath, $name);
 
@@ -192,9 +194,9 @@ Optional:
 
 Safety:
   - never overwrites an existing target;
-  - excludes .git, vendor and dist;
+  - excludes .git, vendor, dist and the boilerplate composer.lock;
   - replaces kebab, snake, REST, namespace and constant identities deterministically;
-  - removes scaffolder-only tooling from the generated plugin;
+  - removes scaffolder-only commands and tooling from the generated plugin;
   - removes a partial target if generation fails.
 TXT;
 
@@ -277,6 +279,29 @@ function isTextFile(string $path, string $contents): bool
     ];
 
     return in_array($extension, $textExtensions, true) && !str_contains($contents, "\0");
+}
+
+function cleanGeneratedComposer(string $targetPath): void
+{
+    $composerPath = $targetPath . DIRECTORY_SEPARATOR . 'composer.json';
+    $contents = file_get_contents($composerPath);
+    if ($contents === false) {
+        throw new RuntimeException('Could not read generated composer.json.');
+    }
+
+    $composer = json_decode($contents, true, 512, JSON_THROW_ON_ERROR);
+    if (!is_array($composer)) {
+        throw new RuntimeException('Generated composer.json is invalid.');
+    }
+
+    if (isset($composer['scripts']) && is_array($composer['scripts'])) {
+        unset($composer['scripts']['scaffold'], $composer['scripts']['scaffold:smoke'], $composer['scripts']['scaffold:smoke:full']);
+    }
+
+    $json = json_encode($composer, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR) . "\n";
+    if (file_put_contents($composerPath, $json) === false) {
+        throw new RuntimeException('Could not normalize generated composer.json.');
+    }
 }
 
 function writeGeneratedReadme(
