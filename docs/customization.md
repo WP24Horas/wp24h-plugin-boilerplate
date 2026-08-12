@@ -2,14 +2,40 @@
 
 Use this checklist before shipping a plugin derived from the boilerplate.
 
+## Recommended starting point
+
+Prefer the built-in scaffolder instead of manually renaming the base:
+
+```bash
+composer scaffold -- \
+  --name="Acme Orders" \
+  --slug=acme-orders \
+  --namespace="Acme\\Orders" \
+  --vendor=acme \
+  --target="../acme-orders"
+```
+
+See [`scaffolding.md`](scaffolding.md) for all options and safety rules.
+
 ## Identity
 
-- Rename the plugin folder and main file.
-- Replace `WP24H Plugin Boilerplate` in the plugin header and documentation.
-- Replace the `wp24h-plugin-boilerplate` text domain everywhere.
-- Replace `WP24H\PluginBoilerplate` with a unique PSR-4 namespace.
-- Rename constants beginning with `WP24H_PLUGIN_BOILERPLATE_`.
-- Rename the option key and public hooks to prevent collisions.
+The scaffolder handles the deterministic identity changes below:
+
+- plugin name;
+- plugin folder target;
+- main plugin filename;
+- text domain / slug;
+- PSR-4 namespace;
+- constants beginning with the boilerplate prefix;
+- Composer package name.
+
+After generation, review manually:
+
+- plugin description and product-specific URLs;
+- author and author URL when not supplied to the scaffolder;
+- repository URLs, security contact and contribution links;
+- option keys and public hooks when the plugin needs product-specific names;
+- README and `readme.txt` product copy.
 
 ## Product behavior
 
@@ -27,5 +53,5 @@ Use this checklist before shipping a plugin derived from the boilerplate.
 - Run `composer check`.
 - Test activation without a generated `vendor/` directory.
 - Generate translations and a distributable ZIP without development files.
-- Replace repository URLs, security contact and author information.
-
+- Search for `wp24h-plugin-boilerplate`, `WP24H\\PluginBoilerplate` and `WP24H_PLUGIN_BOILERPLATE` before the first release; none should remain unless deliberately documented as provenance.
+- Inspect the generated ZIP before publishing.
