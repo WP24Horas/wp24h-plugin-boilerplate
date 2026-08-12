@@ -16,21 +16,27 @@ WP24H Plugin Boilerplate provides a secure and extensible starting point with:
 
 * Configurable feature modules.
 * A Settings API administration screen.
-* Shortcode, REST API, dashboard widget and admin notice examples.
+* Public read-only and protected REST API examples.
+* Shortcode, dashboard widget, admin notice and Site Health examples.
+* Capability checks, validation, sanitization and escaping patterns.
 * Internationalization and safe uninstall behavior.
-* PHPCS, PHPStan, PHPUnit and GitHub Actions configuration.
+* PHPCS, PHPStan and PHPUnit development tooling.
+* A local plugin scaffolder that renames runtime identity safely.
+* A module generator that creates a module class and matching unit test.
+* Local smoke validation for the generated plugin and module workflow.
 
-This repository is intended as a development starter. Rename its namespace, slug and text domain before publishing a derived plugin.
+This repository is intended as a development starter. Use the scaffolder to create a derived plugin with its own slug, namespace, text domain and ownership metadata before distribution.
 
 == Installation ==
 
-1. Copy or clone the repository into `wp-content/plugins`.
-2. Optionally run `composer install` for development tooling.
-3. Activate the plugin in WordPress.
-4. Open Settings > WP24H Boilerplate.
+1. Clone the repository for development.
+2. Run `composer install`.
+3. Run `composer check:boilerplate` to validate the base and generator tooling.
+4. Optionally start the local WordPress environment with `wp-env`.
+5. Activate the plugin and open Settings > WP24H Boilerplate.
 
 == Changelog ==
 
 = 1.0.0 =
-* Initial public release.
+* Initial public version of the boilerplate.
 
