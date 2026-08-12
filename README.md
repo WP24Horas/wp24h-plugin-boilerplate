@@ -21,6 +21,7 @@ O projeto funciona imediatamente após ser copiado, mesmo sem `vendor/`, e ofere
 - Política de desinstalação segura: dados são preservados por padrão.
 - Build reproduzível de ZIP e workflow de release preparado para uso quando uma tag for publicada.
 - Scaffolder seguro para criar um plugin novo sem uma sequência manual de `search/replace`.
+- Smoke test local que valida o plugin gerado e pode executar uma prova completa com Composer.
 
 ## Criar um plugin novo
 
@@ -45,7 +46,7 @@ composer scaffold -- \
   --target="../acme-orders"
 ```
 
-O comando mantém alinhados nome, slug/text domain, namespace PSR-4, prefixo de constantes, pacote Composer e nome do arquivo principal. Ele não sobrescreve targets existentes e remove o próprio scaffolder do plugin gerado.
+O comando mantém alinhados nome, slug/text domain, namespace PSR-4, option keys, hooks públicos, namespace REST, prefixo de constantes, pacote Composer e nome do arquivo principal. Ele não sobrescreve targets existentes, não copia o `composer.lock` da base e remove as ferramentas exclusivas do scaffolder no plugin gerado.
 
 Veja [docs/scaffolding.md](docs/scaffolding.md) para os detalhes e regras de segurança.
 
@@ -117,13 +118,15 @@ O roteiro completo está em [docs/customization.md](docs/customization.md).
 ## Comandos
 
 ```bash
-composer scaffold -- ...  # Gera um plugin novo a partir da base
-composer lint             # WordPress Coding Standards
-composer lint:fix         # Correções automáticas seguras
-composer analyse          # PHPStan
-composer test             # PHPUnit
-composer check            # Todas as verificações
-bash scripts/build-release.sh  # Gera dist/wp24h-plugin-boilerplate.zip
+composer scaffold -- ...        # Gera um plugin novo a partir da base
+composer scaffold:smoke         # Valida estruturalmente um scaffold temporário
+composer scaffold:smoke:full    # Gera, instala dependências e roda composer check no plugin temporário
+composer lint                    # WordPress Coding Standards
+composer lint:fix                # Correções automáticas seguras
+composer analyse                 # PHPStan
+composer test                    # PHPUnit
+composer check                   # Lint + análise + testes + smoke estrutural do scaffolder
+bash scripts/build-release.sh    # Gera dist/wp24h-plugin-boilerplate.zip
 ```
 
 O processo completo de publicação está documentado em [docs/releasing.md](docs/releasing.md).
