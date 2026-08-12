@@ -20,6 +20,34 @@ O projeto funciona imediatamente após ser copiado, mesmo sem `vendor/`, e ofere
 - Ambiente local opcional com `wp-env`.
 - Política de desinstalação segura: dados são preservados por padrão.
 - Build reproduzível de ZIP e workflow de release preparado para uso quando uma tag for publicada.
+- Scaffolder seguro para criar um plugin novo sem uma sequência manual de `search/replace`.
+
+## Criar um plugin novo
+
+Depois de clonar a base e instalar as dependências de desenvolvimento:
+
+```bash
+git clone https://github.com/WP24Horas/wp24h-plugin-boilerplate.git
+cd wp24h-plugin-boilerplate
+composer install
+```
+
+Gere um novo plugin em outro diretório:
+
+```bash
+composer scaffold -- \
+  --name="Acme Orders" \
+  --slug=acme-orders \
+  --namespace="Acme\\Orders" \
+  --vendor=acme \
+  --author="Acme Inc." \
+  --author-uri="https://example.com" \
+  --target="../acme-orders"
+```
+
+O comando mantém alinhados nome, slug/text domain, namespace PSR-4, prefixo de constantes, pacote Composer e nome do arquivo principal. Ele não sobrescreve targets existentes e remove o próprio scaffolder do plugin gerado.
+
+Veja [docs/scaffolding.md](docs/scaffolding.md) para os detalhes e regras de segurança.
 
 ## Status de release
 
@@ -27,7 +55,7 @@ A versão atual do plugin é **1.0.0**, mas ainda não existe tag ou GitHub Rele
 
 A primeira release deve ser criada somente após validação local/runtime da versão atual. O processo completo está em [docs/releasing.md](docs/releasing.md).
 
-## Instalação rápida
+## Instalação rápida da base
 
 ```bash
 git clone https://github.com/WP24Horas/wp24h-plugin-boilerplate.git
@@ -73,10 +101,14 @@ O módulo passa a aparecer automaticamente na tela de configurações. Consulte 
 
 ## Transformando em seu plugin
 
-1. Substitua nome, slug, namespace e text domain.
-2. Remova os módulos de exemplo que não fazem sentido.
-3. Defina seus módulos no método `Plugin::build_modules()` ou pelo filtro público.
-4. Atualize cabeçalho, documentação e licença.
+O caminho recomendado agora é usar o scaffolder, em vez de fazer renomeações manuais.
+
+Depois da geração:
+
+1. Remova os módulos de exemplo que não fazem sentido.
+2. Defina seus módulos no método `Plugin::build_modules()` ou pelo filtro público.
+3. Atualize descrição, URLs, branding, documentação e licença quando necessário.
+4. Faça uma busca final pelo slug/namespace originais como verificação de higiene.
 5. Rode `composer check` antes de publicar.
 
 O roteiro completo está em [docs/customization.md](docs/customization.md).
@@ -84,11 +116,12 @@ O roteiro completo está em [docs/customization.md](docs/customization.md).
 ## Comandos
 
 ```bash
-composer lint       # WordPress Coding Standards
-composer lint:fix   # Correções automáticas seguras
-composer analyse    # PHPStan
-composer test       # PHPUnit
-composer check      # Todas as verificações
+composer scaffold -- ...  # Gera um plugin novo a partir da base
+composer lint             # WordPress Coding Standards
+composer lint:fix         # Correções automáticas seguras
+composer analyse          # PHPStan
+composer test             # PHPUnit
+composer check            # Todas as verificações
 bash scripts/build-release.sh  # Gera dist/wp24h-plugin-boilerplate.zip
 ```
 
