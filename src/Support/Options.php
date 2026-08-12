@@ -20,6 +20,7 @@ final class Options {
 			'modules'        => array(
 				'shortcode'        => true,
 				'rest_api'         => true,
+				'protected_rest'   => false,
 				'dashboard_widget' => false,
 				'admin_notice'     => false,
 				'site_health'      => false,
