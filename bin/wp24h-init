@@ -4,7 +4,10 @@
 declare(strict_types=1);
 
 const SOURCE_SLUG = 'wp24h-plugin-boilerplate';
+const SOURCE_REST_BASE = 'wp24h-boilerplate';
+const SOURCE_SNAKE = 'wp24h_plugin_boilerplate';
 const SOURCE_NAME = 'WP24H Plugin Boilerplate';
+const SOURCE_SHORT_NAME = 'WP24H Boilerplate';
 const SOURCE_NAMESPACE = 'WP24H\\PluginBoilerplate';
 const SOURCE_PREFIX = 'WP24H_PLUGIN_BOILERPLATE';
 const SOURCE_PACKAGE = 'wp24horas/wp24h-plugin-boilerplate';
@@ -78,7 +81,8 @@ if (!mkdir($targetPath, 0775, true) && !is_dir($targetPath)) {
     exit(1);
 }
 
-$prefix = strtoupper(str_replace('-', '_', $slug));
+$snake = str_replace('-', '_', $slug);
+$prefix = strtoupper($snake);
 $package = $vendor . '/' . $slug;
 $escapedSourceNamespace = str_replace('\\', '\\\\', SOURCE_NAMESPACE);
 $escapedTargetNamespace = str_replace('\\', '\\\\', $namespace);
@@ -88,8 +92,11 @@ $replacements = [
     $escapedSourceNamespace => $escapedTargetNamespace,
     SOURCE_NAMESPACE => $namespace,
     SOURCE_PREFIX => $prefix,
+    SOURCE_SNAKE => $snake,
     SOURCE_SLUG => $slug,
+    SOURCE_REST_BASE => $slug,
     SOURCE_NAME => $name,
+    SOURCE_SHORT_NAME => $name,
 ];
 
 if ($author !== '') {
@@ -119,6 +126,11 @@ try {
     $generatedScaffolder = $targetPath . DIRECTORY_SEPARATOR . 'bin' . DIRECTORY_SEPARATOR . 'wp24h-init';
     if (is_file($generatedScaffolder)) {
         unlink($generatedScaffolder);
+    }
+
+    $generatedSmoke = $targetPath . DIRECTORY_SEPARATOR . 'scripts' . DIRECTORY_SEPARATOR . 'smoke-scaffold.php';
+    if (is_file($generatedSmoke)) {
+        unlink($generatedSmoke);
     }
 
     $binDir = dirname($generatedScaffolder);
@@ -181,7 +193,8 @@ Optional:
 Safety:
   - never overwrites an existing target;
   - excludes .git, vendor and dist;
-  - removes the scaffolder itself from the generated plugin;
+  - replaces kebab, snake, REST, namespace and constant identities deterministically;
+  - removes scaffolder-only tooling from the generated plugin;
   - removes a partial target if generation fails.
 TXT;
 
