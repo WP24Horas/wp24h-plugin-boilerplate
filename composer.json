@@ -31,6 +31,7 @@
     "lint:fix": "phpcbf",
     "analyse": "phpstan analyse --memory-limit=512M",
     "test": "phpunit",
+    "tooling:lint": "php scripts/lint-tooling.php",
     "make:module": "php bin/wp24h-make-module",
     "scaffold": "php bin/wp24h-init",
     "scaffold:smoke": "php scripts/smoke-scaffold.php",
@@ -42,6 +43,7 @@
     ],
     "check:boilerplate": [
       "@check",
+      "@tooling:lint",
       "@scaffold:smoke"
     ]
   },
