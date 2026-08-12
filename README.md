@@ -19,6 +19,7 @@ O projeto funciona imediatamente após ser copiado, mesmo sem `vendor/`, e ofere
 - Matriz de CI para PHP 8.1, 8.2, 8.3 e 8.4.
 - Ambiente local opcional com `wp-env`.
 - Política de desinstalação segura: dados são preservados por padrão.
+- Build reproduzível de ZIP e workflow validado para GitHub Releases.
 
 ## Instalação rápida
 
@@ -82,7 +83,10 @@ composer lint:fix   # Correções automáticas seguras
 composer analyse    # PHPStan
 composer test       # PHPUnit
 composer check      # Todas as verificações
+bash scripts/build-release.sh  # Gera dist/wp24h-plugin-boilerplate.zip
 ```
+
+O processo completo de publicação está documentado em [docs/releasing.md](docs/releasing.md).
 
 ## Compatibilidade
 
