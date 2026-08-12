@@ -21,7 +21,9 @@ final class SiteHealthModuleTest extends TestCase {
 			define( 'WP24H_PLUGIN_BOILERPLATE_VERSION', '1.0.0' );
 		}
 
-		Functions\when( 'esc_html' )->returnArg();
+		Functions\when( 'esc_html' )->alias(
+			static fn ( string $text ): string => $text
+		);
 	}
 
 	protected function tearDown(): void {
