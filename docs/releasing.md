@@ -11,11 +11,19 @@ Keep these values aligned:
 - `Stable tag` in `readme.txt`.
 - The matching version section in `CHANGELOG.md`.
 
-Run the full quality suite:
+Run the full boilerplate quality suite:
 
 ```bash
 composer install
-composer check
+composer check:boilerplate
+```
+
+`composer check:boilerplate` runs the normal plugin quality contract plus the generator smoke test. A plugin produced by the scaffolder keeps the simpler `composer check` contract because it does not carry the project-generation tooling.
+
+For the deepest local proof, including dependency installation and `composer check` inside a generated plugin, run:
+
+```bash
+composer scaffold:smoke:full
 ```
 
 Build the distributable locally:
@@ -33,6 +41,6 @@ The `Release` workflow supports two safe entry points:
 1. Run it manually from GitHub Actions and provide a semantic version such as `1.0.0`.
 2. Push a tag matching `v*.*.*`.
 
-Before publishing, the workflow validates version metadata, runs the full Composer quality suite and builds the same reproducible ZIP used locally. It then attaches the ZIP to the GitHub Release.
+Before publishing, the workflow validates version metadata, runs `composer check:boilerplate` and builds the same reproducible ZIP used locally. It then attaches the ZIP to the GitHub Release.
 
 Re-running the workflow for an existing release replaces the ZIP asset instead of creating a duplicate release.
