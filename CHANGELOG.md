@@ -15,11 +15,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - Optional full scaffold smoke mode that runs `composer install` and `composer check` inside the generated plugin.
 - Optional Site Health diagnostics module with direct runtime baseline checks.
 - Unit coverage for Site Health registration and result shape.
+- Optional `--plugin-uri` support for explicit generated-project metadata.
+- Ownership-neutral generated `SECURITY.md` guidance.
 
 ### Changed
 
 - Scaffold identity replacement now covers kebab-case, snake_case, REST namespace, PSR-4 namespace and constant prefixes to reduce collision risk.
 - Generated plugins no longer inherit the boilerplate `composer.lock` or generator-only Composer commands.
+- Generated plugin headers omit `Plugin URI` when no explicit project URL is supplied instead of inventing a WP24Horas repository URL.
+- Scaffold smoke coverage now verifies explicit and omitted plugin URI behavior plus neutral security metadata.
 - `composer check` now includes the structural scaffold smoke test.
 - Customization guidance now prefers scaffold-first generation over manual search/replace.
 - Production ZIP excludes the scaffolder tooling.
