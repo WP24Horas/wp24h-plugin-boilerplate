@@ -31,9 +31,10 @@ This repository is intended as a development starter. Use the scaffolder to crea
 
 1. Clone the repository for development.
 2. Run `composer install`.
-3. Run `composer check:boilerplate` to validate the base and generator tooling.
-4. Optionally start the local WordPress environment with `wp-env`.
-5. Activate the plugin and open Settings > WP24H Boilerplate.
+3. Run `composer check` to validate plugin code, tests and retained CLI tooling.
+4. Run `composer scaffold:smoke` to validate the project-generation flow.
+5. Optionally start the local WordPress environment with `wp-env`.
+6. Activate the plugin and open Settings > WP24H Boilerplate.
 
 == Changelog ==
 
