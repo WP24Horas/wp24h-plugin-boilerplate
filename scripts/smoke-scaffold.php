@@ -26,6 +26,7 @@ try {
     assertFile($target . DIRECTORY_SEPARATOR . 'acme-orders.php');
     assertMissing($target . DIRECTORY_SEPARATOR . 'wp24h-plugin-boilerplate.php');
     assertMissing($target . DIRECTORY_SEPARATOR . 'bin' . DIRECTORY_SEPARATOR . 'wp24h-init');
+    assertFile($target . DIRECTORY_SEPARATOR . 'bin' . DIRECTORY_SEPARATOR . 'wp24h-make-module');
     assertMissing($target . DIRECTORY_SEPARATOR . 'scripts' . DIRECTORY_SEPARATOR . 'smoke-scaffold.php');
     assertMissing($target . DIRECTORY_SEPARATOR . 'composer.lock');
 
@@ -35,9 +36,11 @@ try {
     $composer = json_decode((string) file_get_contents($composerPath), true, 512, JSON_THROW_ON_ERROR);
     assertSame('acme/acme-orders', $composer['name'] ?? null, 'Composer package name');
     assertSame('src/', $composer['autoload']['psr-4']['Acme\\Orders\\'] ?? null, 'Composer PSR-4 namespace');
+    assertSame('php bin/wp24h-make-module', $composer['scripts']['make:module'] ?? null, 'module generator command');
     assertFalse(isset($composer['scripts']['scaffold']), 'Generated plugin must not keep the scaffold command.');
     assertFalse(isset($composer['scripts']['scaffold:smoke']), 'Generated plugin must not keep scaffold smoke commands.');
     assertFalse(isset($composer['scripts']['scaffold:smoke:full']), 'Generated plugin must not keep full scaffold smoke commands.');
+    assertSame(['@lint', '@analyse', '@test'], $composer['scripts']['check'] ?? null, 'generated plugin check contract');
 
     $main = (string) file_get_contents($target . DIRECTORY_SEPARATOR . 'acme-orders.php');
     assertContains('Plugin Name: Acme Orders', $main, 'plugin name');
@@ -85,6 +88,43 @@ try {
     run(
         [
             PHP_BINARY,
+            $target . DIRECTORY_SEPARATOR . 'bin' . DIRECTORY_SEPARATOR . 'wp24h-make-module',
+            '--class=AuditLogModule',
+            '--id=audit_log',
+            '--label=Audit log',
+            '--description=Registers audit log hooks.',
+        ],
+        $target
+    );
+
+    $generatedModulePath = $target . DIRECTORY_SEPARATOR . 'src' . DIRECTORY_SEPARATOR . 'Modules' . DIRECTORY_SEPARATOR . 'AuditLogModule.php';
+    $generatedModuleTestPath = $target . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR . 'Unit' . DIRECTORY_SEPARATOR . 'AuditLogModuleTest.php';
+    assertFile($generatedModulePath);
+    assertFile($generatedModuleTestPath);
+
+    $generatedModule = (string) file_get_contents($generatedModulePath);
+    assertContains('namespace Acme\\Orders\\Modules;', $generatedModule, 'generated module namespace');
+    assertContains("return 'audit_log';", $generatedModule, 'generated module id');
+    assertContains("'acme-orders'", $generatedModule, 'generated module text domain');
+
+    $generatedModuleTest = (string) file_get_contents($generatedModuleTestPath);
+    assertContains('namespace Acme\\Orders\\Tests\\Unit;', $generatedModuleTest, 'generated module test namespace');
+    assertContains('use Acme\\Orders\\Modules\\AuditLogModule;', $generatedModuleTest, 'generated module test import');
+
+    runExpectFailure(
+        [
+            PHP_BINARY,
+            $target . DIRECTORY_SEPARATOR . 'bin' . DIRECTORY_SEPARATOR . 'wp24h-make-module',
+            '--class=AuditLogModule',
+            '--id=audit_log',
+            '--label=Audit log',
+        ],
+        $target
+    );
+
+    run(
+        [
+            PHP_BINARY,
             $root . DIRECTORY_SEPARATOR . 'bin' . DIRECTORY_SEPARATOR . 'wp24h-init',
             '--name=Acme Orders',
             '--slug=acme-orders-uri',
@@ -106,7 +146,7 @@ try {
         run([$composerBinary, 'check'], $target);
     }
 
-    fwrite(STDOUT, "Scaffold smoke test passed.\n");
+    fwrite(STDOUT, "Scaffold and module-generator smoke test passed.\n");
     if (!$full) {
         fwrite(STDOUT, "Run with --full to also execute composer install + composer check in the generated plugin.\n");
     }
@@ -118,6 +158,39 @@ try {
  * @param list<string> $command
  */
 function run(array $command, string $cwd): void
+{
+    [$exitCode, $stdout, $stderr] = execute($command, $cwd);
+
+    if ($exitCode !== 0) {
+        throw new RuntimeException(
+            sprintf(
+                "Command failed (%d): %s\n%s\n%s",
+                $exitCode,
+                implode(' ', $command),
+                trim($stdout),
+                trim($stderr)
+            )
+        );
+    }
+}
+
+/**
+ * @param list<string> $command
+ */
+function runExpectFailure(array $command, string $cwd): void
+{
+    [$exitCode] = execute($command, $cwd);
+
+    if ($exitCode === 0) {
+        throw new RuntimeException('Command was expected to fail but succeeded: ' . implode(' ', $command));
+    }
+}
+
+/**
+ * @param list<string> $command
+ * @return array{0:int,1:string,2:string}
+ */
+function execute(array $command, string $cwd): array
 {
     $escaped = array_map('escapeshellarg', $command);
     $process = proc_open(
@@ -136,23 +209,12 @@ function run(array $command, string $cwd): void
     }
 
     fclose($pipes[0]);
-    $stdout = stream_get_contents($pipes[1]);
-    $stderr = stream_get_contents($pipes[2]);
+    $stdout = (string) stream_get_contents($pipes[1]);
+    $stderr = (string) stream_get_contents($pipes[2]);
     fclose($pipes[1]);
     fclose($pipes[2]);
 
-    $exitCode = proc_close($process);
-    if ($exitCode !== 0) {
-        throw new RuntimeException(
-            sprintf(
-                "Command failed (%d): %s\n%s\n%s",
-                $exitCode,
-                implode(' ', $command),
-                trim((string) $stdout),
-                trim((string) $stderr)
-            )
-        );
-    }
+    return [proc_close($process), $stdout, $stderr];
 }
 
 function assertFile(string $path): void
