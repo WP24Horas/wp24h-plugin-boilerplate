@@ -35,13 +35,22 @@ bash scripts/build-release.sh
 
 The resulting file is `dist/wp24h-plugin-boilerplate.zip`.
 
-## GitHub release
+## Default release path
 
-The `Release` workflow supports two safe entry points:
+The default release path is local-first and explicit:
 
-1. Run it manually from GitHub Actions and provide a semantic version such as `1.0.0`.
-2. Push a tag matching `v*.*.*`.
+1. complete the local quality and generator checks;
+2. validate the plugin in a disposable WordPress installation;
+3. build and inspect the local ZIP;
+4. create the immutable version tag only after the validated commit is final;
+5. create the GitHub Release explicitly and attach the validated ZIP.
 
-Before publishing, the workflow validates version metadata, runs `composer check`, runs `composer scaffold:smoke` and builds the same reproducible ZIP used locally. It then attaches the ZIP to the GitHub Release.
+Creating or pushing a tag does **not** trigger GitHub Actions automatically.
 
-Re-running the workflow for an existing release replaces the ZIP asset instead of creating a duplicate release.
+## Optional GitHub release workflow
+
+The `Release` workflow is `workflow_dispatch` only. It exists as an optional deliberate release tool when GitHub Actions usage is desired.
+
+When run manually with a semantic version such as `1.0.0`, it validates version metadata, installs dependencies, runs `composer check`, runs `composer scaffold:smoke`, builds the distribution ZIP and publishes or updates the corresponding GitHub Release asset.
+
+Do not use the workflow as a substitute for the documented runtime and distribution gates. In particular, the first `v1.0.0` should only be published after the release checklist issue is complete.
