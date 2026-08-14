@@ -16,6 +16,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - Module generator exposed through `composer make:module -- ...`, with automatic namespace/text-domain detection and source/test generation.
 - Scaffold smoke coverage for the retained module generator and overwrite protection.
 - PHP syntax lint for retained CLI tooling under `bin/` and `scripts/`.
+- Generator hardening smoke covering comment-breaking labels, invalid header metadata, literal replacement-like URLs, Unicode and generated PHP syntax.
 - Optional Site Health diagnostics module with direct runtime baseline checks.
 - Unit coverage for Site Health registration and result shape.
 - Optional protected REST POST example with capability checks, argument validation and sanitization.
@@ -24,16 +25,23 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - Optional `--plugin-uri` support for explicit generated-project metadata.
 - Ownership-neutral generated `SECURITY.md` and `readme.txt` guidance.
 
+### Fixed
+
+- Module labels can no longer terminate or corrupt generated DocBlocks through `*/` or line breaks.
+- Scaffold plugin names/authors reject control characters and comment-breaking metadata before generation.
+- Explicit Plugin URI values are rendered literally instead of being interpreted as `preg_replace()` replacement backreferences.
+
 ### Changed
 
 - Scaffold identity replacement now covers kebab-case, snake_case, REST namespace, PSR-4 namespace and constant prefixes to reduce collision risk.
 - Generated plugins no longer inherit the boilerplate `composer.lock` or generator-only Composer commands.
-- Generated plugins retain the module generator and tooling syntax lint as part of their development experience.
+- Generated plugins retain the module generator, tooling syntax lint and generator hardening check as part of their development experience.
 - Generated plugin headers omit `Plugin URI` when no explicit project URL is supplied instead of inventing a WP24Horas repository URL.
 - Scaffold smoke coverage verifies explicit and omitted plugin URI behavior plus neutral security/readme metadata.
-- `composer check` is now a self-contained plugin contract: PHPCS, PHPStan, PHPUnit and retained-tooling syntax lint.
+- `composer check` is now a self-contained plugin contract: PHPCS, PHPStan, PHPUnit, retained-tooling syntax lint and generator hardening.
 - Boilerplate-only scaffold validation remains an explicit `composer scaffold:smoke` command so generated Composer scripts never contain dead references.
 - Release validation runs both `composer check` and `composer scaffold:smoke` explicitly.
+- The release workflow is manual-only; creating a version tag no longer consumes GitHub Actions automatically.
 - Customization guidance prefers scaffold-first generation over manual search/replace.
 - Production ZIP excludes all generator and development tooling.
 - README documents Site Health, protected REST, module generation and local validation commands.
