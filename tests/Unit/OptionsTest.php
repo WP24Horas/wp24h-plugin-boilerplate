@@ -41,9 +41,18 @@ final class OptionsTest extends TestCase {
 		self::assertFalse( $defaults['modules']['site_health'] );
 	}
 
+	public function test_default_content_is_raw_until_presented(): void {
+		$defaults = Options::defaults();
+
+		self::assertSame( 'Built with the WP24H Plugin Boilerplate', $defaults['headline'] );
+		self::assertSame( 'Replace this message in Settings → WP24H Boilerplate.', $defaults['message'] );
+		self::assertSame( $defaults['headline'], Options::display_value( 'headline', $defaults['headline'] ) );
+		self::assertSame( $defaults['message'], Options::display_value( 'message', $defaults['message'] ) );
+	}
+
 	public function test_saved_module_values_override_defaults(): void {
 		Functions\expect( 'get_option' )
-			->twice()
+			->times( 3 )
 			->with( Options::KEY, array() )
 			->andReturn(
 				array(

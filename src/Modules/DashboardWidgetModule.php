@@ -32,12 +32,12 @@ final class DashboardWidgetModule implements Module {
 	public function add_widget(): void {
 		wp_add_dashboard_widget(
 			'wp24h_plugin_boilerplate_widget',
-			(string) $this->options->get( 'headline', '' ),
+			(string) Options::display_value( 'headline', $this->options->get( 'headline', '' ) ),
 			array( $this, 'render' )
 		);
 	}
 
 	public function render(): void {
-		echo '<p>' . esc_html( (string) $this->options->get( 'message', '' ) ) . '</p>';
+		echo '<p>' . esc_html( (string) Options::display_value( 'message', $this->options->get( 'message', '' ) ) ) . '</p>';
 	}
 }

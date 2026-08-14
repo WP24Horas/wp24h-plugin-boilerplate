@@ -65,7 +65,7 @@ try {
     assertNotContains('This repository is intended as a development starter', $wpOrgReadme, 'inherited boilerplate instructions');
 
     $options = (string) file_get_contents($target . DIRECTORY_SEPARATOR . 'src' . DIRECTORY_SEPARATOR . 'Support' . DIRECTORY_SEPARATOR . 'Options.php');
-    assertContains("public const KEY = 'acme_orders_settings';", $options, 'option key');
+    assertContains("public const KEY              = 'acme_orders_settings';", $options, 'option key');
     assertContains("'rest_namespace' => 'acme-orders/v1'", $options, 'REST namespace');
 
     $plugin = (string) file_get_contents($target . DIRECTORY_SEPARATOR . 'src' . DIRECTORY_SEPARATOR . 'Core' . DIRECTORY_SEPARATOR . 'Plugin.php');
