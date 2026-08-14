@@ -173,11 +173,12 @@ function renderModule(
 ): string {
     $labelLiteral = phpString($label);
     $descriptionLiteral = phpString($description);
+    $docLabel = docBlockText($label);
 
     return <<<PHP
 <?php
 /**
- * {$label} module.
+ * {$docLabel} module.
  *
  * @package {$namespace}
  */
@@ -240,6 +241,14 @@ PHP;
 function phpString(string $value): string
 {
     return var_export($value, true);
+}
+
+function docBlockText(string $value): string
+{
+    $value = preg_replace('/[\r\n]+/', ' ', $value) ?? $value;
+    $value = str_replace('*/', '* /', $value);
+
+    return trim($value);
 }
 
 function writeFile(string $path, string $contents): void
