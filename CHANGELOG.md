@@ -33,6 +33,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - Ownership-neutral generated `SECURITY.md` and `readme.txt` guidance.
 - Reproducible local release packaging commands: `release:build`, `release:verify` and `release:package`.
 - Structural ZIP verification for required files, top-level layout and forbidden development tooling.
+- PowerShell-native release build and verification scripts plus Composer aliases for Windows environments.
 
 ### Fixed
 
@@ -55,6 +56,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - The release workflow is manual-only; creating a version tag no longer consumes GitHub Actions automatically.
 - Customization guidance prefers scaffold-first generation over manual search/replace.
 - Production ZIP is intentionally lean: source-governance files, development configuration, build metadata, tests, docs and generator tooling are excluded while the main plugin file, `readme.txt`, license and runtime source remain.
+- Release documentation treats Bash and PowerShell packaging as equivalent local paths to the same verified artifact contract.
 - README documents Site Health, protected REST, module generation, hardening and verified local release packaging commands.
 
 `v1.0.0` will be created only after the documented clean-checkout, generator, WordPress runtime and distribution gates pass. At that point this Unreleased section will be finalized as the first versioned release entry with the actual release date.
