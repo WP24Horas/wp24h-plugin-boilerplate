@@ -79,6 +79,16 @@ The verified ZIP was installed into a fresh WordPress 7.0.3 / PHP 8.1.34 wp-env 
 | `683e5e5` | PHPUnit mock expectation was stale; two tests were risky. | Correct call count and assertion counts in tests only. |
 | `54091f7` | WordPress 6.7+ warned that translations loaded too early. | Boot plugin at `init`. |
 | `88f2eaa` | Extensionless `bin/` generator scripts retained CRLF and generated CRLF PHP in Windows checkouts. | `.gitattributes`: `bin/* text eol=lf`. |
+| `1239d0d` | PR #7 review found that moving all boot work to `init` could skip custom modules' earlier `init` callbacks. | Restored `plugins_loaded`; made configuration defaults raw and translate them only at presentation. |
+| `dd51606` / `c0aa4ee` | The lifecycle correction exposed PHPCS literal/spacing rules and a stale scaffold assertion. | Used literal translation strings and aligned the smoke expectation. |
+
+## PR #7 lifecycle review revalidation
+
+The PR review correctly identified a lifecycle regression in `54091f7`. `Plugin::boot()` now runs again on `plugins_loaded`, preserving the public extension point before `init`. `Options::defaults()` no longer invokes translation functions; headline and message defaults are raw configuration values and are translated only through `Options::display_value()` when displayed. Saved values are not translated or changed.
+
+Regression coverage was added for raw defaults and the bootstrap hook. A wp-env lifecycle probe injected a custom module through `wp24h_plugin_boilerplate_modules` before boot, enabled it through the settings filter, and registered an `init` callback at priority `1`. The callback executed during that request (`wp24h_lifecycle_probe_ran=yes`). The debug log remained absent/empty and public REST stayed HTTP 200.
+
+After the lifecycle correction, a fresh LF checkout passed `composer check` (11 tests, 30 assertions) and `composer scaffold:smoke:full`. The PowerShell ZIP was rebuilt and verified.
 
 ## Remaining manual checks
 
