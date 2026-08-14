@@ -32,6 +32,7 @@ final class ProtectedRestModuleTest extends TestCase {
 			->with( 'rest_api_init', array( $module, 'register_route' ) );
 
 		$module->register();
+		self::addToAssertionCount( 1 );
 	}
 
 	public function test_permission_callback_requires_manage_options(): void {

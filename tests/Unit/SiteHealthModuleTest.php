@@ -39,6 +39,7 @@ final class SiteHealthModuleTest extends TestCase {
 			->with( 'site_status_tests', array( $module, 'register_test' ) );
 
 		$module->register();
+		self::addToAssertionCount( 1 );
 	}
 
 	public function test_register_test_adds_direct_runtime_check(): void {

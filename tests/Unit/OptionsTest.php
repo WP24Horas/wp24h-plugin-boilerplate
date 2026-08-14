@@ -43,7 +43,7 @@ final class OptionsTest extends TestCase {
 
 	public function test_saved_module_values_override_defaults(): void {
 		Functions\expect( 'get_option' )
-			->twice()
+			->times( 3 )
 			->with( Options::KEY, array() )
 			->andReturn(
 				array(
