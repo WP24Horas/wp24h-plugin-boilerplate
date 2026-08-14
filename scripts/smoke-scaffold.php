@@ -29,6 +29,7 @@ try {
     assertFile($target . DIRECTORY_SEPARATOR . 'bin' . DIRECTORY_SEPARATOR . 'wp24h-make-module');
     assertMissing($target . DIRECTORY_SEPARATOR . 'scripts' . DIRECTORY_SEPARATOR . 'smoke-scaffold.php');
     assertFile($target . DIRECTORY_SEPARATOR . 'scripts' . DIRECTORY_SEPARATOR . 'lint-tooling.php');
+    assertFile($target . DIRECTORY_SEPARATOR . 'scripts' . DIRECTORY_SEPARATOR . 'check-generator-hardening.php');
     assertMissing($target . DIRECTORY_SEPARATOR . 'composer.lock');
 
     $composerPath = $target . DIRECTORY_SEPARATOR . 'composer.json';
@@ -39,10 +40,11 @@ try {
     assertSame('src/', $composer['autoload']['psr-4']['Acme\\Orders\\'] ?? null, 'Composer PSR-4 namespace');
     assertSame('php bin/wp24h-make-module', $composer['scripts']['make:module'] ?? null, 'module generator command');
     assertSame('php scripts/lint-tooling.php', $composer['scripts']['tooling:lint'] ?? null, 'tooling lint command');
+    assertSame('php scripts/check-generator-hardening.php', $composer['scripts']['tooling:hardening'] ?? null, 'tooling hardening command');
     assertFalse(isset($composer['scripts']['scaffold']), 'Generated plugin must not keep the scaffold command.');
     assertFalse(isset($composer['scripts']['scaffold:smoke']), 'Generated plugin must not keep scaffold smoke commands.');
     assertFalse(isset($composer['scripts']['scaffold:smoke:full']), 'Generated plugin must not keep full scaffold smoke commands.');
-    assertSame(['@lint', '@analyse', '@test', '@tooling:lint'], $composer['scripts']['check'] ?? null, 'generated plugin check contract');
+    assertSame(['@lint', '@analyse', '@test', '@tooling:lint', '@tooling:hardening'], $composer['scripts']['check'] ?? null, 'generated plugin check contract');
 
     $main = (string) file_get_contents($target . DIRECTORY_SEPARATOR . 'acme-orders.php');
     assertContains('Plugin Name: Acme Orders', $main, 'plugin name');
