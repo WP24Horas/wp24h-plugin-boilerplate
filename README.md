@@ -72,9 +72,11 @@ Consulte [docs/module-api.md](docs/module-api.md).
 
 ## Status de release
 
-A versão atual do plugin é **1.0.0**, mas ainda não existe tag ou GitHub Release publicada neste repositório.
+A primeira release estável foi publicada como **[v1.0.0](https://github.com/WP24Horas/wp24h-plugin-boilerplate/releases/tag/v1.0.0)** em 14 de agosto de 2026.
 
-O changelog permanece em `Unreleased` até os gates de qualidade, runtime e distribuição serem concluídos. A primeira release deve ser criada somente após validação local/runtime da versão atual. O processo completo está em [docs/releasing.md](docs/releasing.md).
+Essa versão passou pelos gates documentados de clean checkout, análise estática, testes, scaffold completo, runtime WordPress, plugin gerado, verificação estrutural do ZIP e instalação limpa do artefato. A evidência completa está em [RELEASE_VALIDATION_REPORT.md](RELEASE_VALIDATION_REPORT.md).
+
+O processo de publicação e validação continua documentado em [docs/releasing.md](docs/releasing.md).
 
 ## Instalação rápida da base
 
