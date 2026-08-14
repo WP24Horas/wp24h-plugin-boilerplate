@@ -11,6 +11,8 @@ Keep these values aligned:
 - `Stable tag` in `readme.txt`.
 - The matching version section in `CHANGELOG.md`.
 
+Until the release is actually published, keep release notes under `## [Unreleased]`. Create the dated `## [1.0.0] - YYYY-MM-DD` section only after every gate passes and immediately before creating the immutable tag.
+
 Run the plugin quality contract and the boilerplate-specific generator smoke separately:
 
 ```bash
@@ -29,34 +31,24 @@ composer scaffold:smoke:full
 
 ## Build and verify the distributable
 
-Build and validate the release package in one step:
+Use the release packaging contract instead of building and inspecting the ZIP as unrelated steps:
 
 ```bash
 composer release:package
 ```
 
-This runs:
+This command runs:
+
+1. `release:build` — creates `dist/wp24h-plugin-boilerplate.zip` from `.distignore`;
+2. `release:verify` — verifies the package top-level directory, required runtime files and the absence of forbidden development/tooling paths.
+
+The build script uses an isolated temporary directory and cleans it automatically. The ZIP verifier intentionally avoids Bash-only helpers such as `mapfile`, keeping the verification path compatible with Bash 3.2 environments as well as newer Bash versions.
+
+You can still run the phases individually when debugging:
 
 ```bash
-bash scripts/build-release.sh
-bash scripts/verify-release.sh
-```
-
-The resulting file is `dist/wp24h-plugin-boilerplate.zip`.
-
-The verifier checks that:
-
-- every ZIP entry is under the expected `wp24h-plugin-boilerplate/` top-level directory;
-- the main plugin file, `readme.txt` and `LICENSE.md` exist;
-- no `.git`, `.github`, `bin`, `docs`, `tests`, `vendor`, `scripts` or `dist` content is packaged;
-- development Composer/PHPCS/PHPStan/PHPUnit files are absent;
-- contribution/security development files excluded by `.distignore` are absent;
-- no nested ZIP is shipped accidentally.
-
-A custom ZIP path can also be verified directly:
-
-```bash
-bash scripts/verify-release.sh /path/to/package.zip
+composer release:build
+composer release:verify
 ```
 
 ## Default release path
@@ -65,10 +57,11 @@ The default release path is local-first and explicit:
 
 1. complete the local quality and generator checks;
 2. validate the plugin in a disposable WordPress installation;
-3. run `composer release:package` and require the artifact verifier to pass;
-4. install that exact ZIP in a clean WordPress instance;
-5. create the immutable version tag only after the validated commit is final;
-6. create the GitHub Release explicitly and attach the validated ZIP.
+3. run `composer release:package`;
+4. install and activate that exact ZIP in a clean WordPress instance;
+5. finalize the `CHANGELOG.md` entry with the actual release date;
+6. create the immutable version tag only after the validated commit is final;
+7. create the GitHub Release explicitly and attach the exact verified ZIP.
 
 Creating or pushing a tag does **not** trigger GitHub Actions automatically.
 
@@ -76,6 +69,6 @@ Creating or pushing a tag does **not** trigger GitHub Actions automatically.
 
 The `Release` workflow is `workflow_dispatch` only. It exists as an optional deliberate release tool when GitHub Actions usage is desired.
 
-When run manually with a semantic version such as `1.0.0`, it validates version metadata, installs dependencies, runs `composer check`, runs `composer scaffold:smoke`, runs `composer release:package` and publishes or updates the corresponding GitHub Release asset.
+When run manually with a semantic version such as `1.0.0`, it validates version metadata, installs dependencies, runs `composer check`, runs `composer scaffold:smoke`, builds **and verifies** the distribution ZIP, then publishes or updates the corresponding GitHub Release asset.
 
 Do not use the workflow as a substitute for the documented runtime and distribution gates. In particular, the first `v1.0.0` should only be published after the release checklist issue is complete.
