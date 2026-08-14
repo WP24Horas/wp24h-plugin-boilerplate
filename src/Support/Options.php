@@ -8,9 +8,9 @@
 namespace WP24H\PluginBoilerplate\Support;
 
 final class Options {
-	public const KEY = 'wp24h_plugin_boilerplate_settings';
+	public const KEY              = 'wp24h_plugin_boilerplate_settings';
 	public const DEFAULT_HEADLINE = 'Built with the WP24H Plugin Boilerplate';
-	public const DEFAULT_MESSAGE = 'Replace this message in Settings → WP24H Boilerplate.';
+	public const DEFAULT_MESSAGE  = 'Replace this message in Settings → WP24H Boilerplate.';
 
 	/**
 	 * Return the default configuration.
@@ -76,11 +76,11 @@ final class Options {
 	 */
 	public static function display_value( string $key, mixed $value ): mixed {
 		if ( 'headline' === $key && self::DEFAULT_HEADLINE === $value ) {
-			return __( self::DEFAULT_HEADLINE, 'wp24h-plugin-boilerplate' );
+			return __( 'Built with the WP24H Plugin Boilerplate', 'wp24h-plugin-boilerplate' );
 		}
 
 		if ( 'message' === $key && self::DEFAULT_MESSAGE === $value ) {
-			return __( self::DEFAULT_MESSAGE, 'wp24h-plugin-boilerplate' );
+			return __( 'Replace this message in Settings → WP24H Boilerplate.', 'wp24h-plugin-boilerplate' );
 		}
 
 		return $value;
