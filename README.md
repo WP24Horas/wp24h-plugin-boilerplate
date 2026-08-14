@@ -4,6 +4,8 @@ Uma base moderna, modular e configurável para plugins WordPress profissionais.
 
 O projeto funciona imediatamente após ser copiado, mesmo sem `vendor/`, e oferece ferramentas de qualidade para quem utiliza Composer no desenvolvimento.
 
+> Este repositório é configurado como **GitHub Template**. Para começar rapidamente, você pode usar o botão **Use this template** no GitHub e depois executar o scaffolder para normalizar identidade, namespace e metadados do novo plugin.
+
 ## O que vem pronto
 
 - Arquitetura orientada a módulos com contrato público e registro via filtro.
@@ -19,7 +21,7 @@ O projeto funciona imediatamente após ser copiado, mesmo sem `vendor/`, e ofere
 - Matriz de compatibilidade para PHP 8.1, 8.2, 8.3 e 8.4 em workflow manual.
 - Ambiente local opcional com `wp-env`.
 - Política de desinstalação segura: dados são preservados por padrão.
-- Build reproduzível e verificado de ZIP, com workflow de release opcional e manual-only.
+- Build reproduzível e verificado de ZIP em Bash e PowerShell, com workflow de release opcional e manual-only.
 - Scaffolder seguro para criar um plugin novo sem uma sequência manual de `search/replace`.
 - Gerador de módulos que continua disponível dentro dos plugins criados pelo scaffolder.
 - Smoke test local que valida o fluxo boilerplate → plugin → módulo e pode executar uma prova completa com Composer.
@@ -136,9 +138,12 @@ composer test                    # PHPUnit
 composer tooling:lint            # Sintaxe PHP das ferramentas CLI mantidas no projeto
 composer tooling:hardening       # Regressões de segurança dos geradores
 composer check                   # Lint + análise + testes + tooling lint + hardening
-composer release:build           # Gera o ZIP de distribuição
-composer release:verify          # Valida estrutura e exclusões do ZIP
-composer release:package         # Build + verify em um único gate local
+composer release:build           # Gera o ZIP de distribuição via Bash
+composer release:verify          # Valida estrutura/exclusões do ZIP via Bash
+composer release:package         # Build + verify via Bash
+composer release:build:ps        # Gera o ZIP via PowerShell
+composer release:verify:ps       # Valida o ZIP via PowerShell
+composer release:package:ps      # Build + verify via PowerShell
 ```
 
 `composer check` é autocontido e continua funcionando no plugin gerado. O smoke do scaffolder é deliberadamente um comando separado porque existe apenas na base.
