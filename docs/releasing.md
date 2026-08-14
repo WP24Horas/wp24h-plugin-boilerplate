@@ -31,6 +31,8 @@ composer scaffold:smoke:full
 
 ## Build and verify the distributable
 
+### Bash / Unix-like environments
+
 Use the release packaging contract instead of building and inspecting the ZIP as unrelated steps:
 
 ```bash
@@ -42,14 +44,26 @@ This command runs:
 1. `release:build` — creates `dist/wp24h-plugin-boilerplate.zip` from `.distignore`;
 2. `release:verify` — verifies the package top-level directory, required runtime files and the absence of forbidden development/tooling paths.
 
-The build script uses an isolated temporary directory and cleans it automatically. The ZIP verifier intentionally avoids Bash-only helpers such as `mapfile`, keeping the verification path compatible with Bash 3.2 environments as well as newer Bash versions.
+The build script uses an isolated temporary directory and cleans it automatically. The ZIP verifier avoids Bash helpers such as `mapfile`, keeping the verification path compatible with Bash 3.2 environments as well as newer Bash versions.
 
-You can still run the phases individually when debugging:
+### PowerShell / Windows
 
-```bash
-composer release:build
-composer release:verify
+The same artifact contract can be produced and verified without WSL:
+
+```powershell
+composer release:package:ps
 ```
+
+This runs the PowerShell-native build and verifier:
+
+```powershell
+composer release:build:ps
+composer release:verify:ps
+```
+
+The PowerShell scripts are written for Windows PowerShell 5.1 compatibility as well as newer PowerShell versions.
+
+Both packaging paths create the same canonical ZIP path and enforce the same release policy. A release only needs one fully validated packaging path on the machine producing the artifact.
 
 ## Default release path
 
@@ -57,7 +71,7 @@ The default release path is local-first and explicit:
 
 1. complete the local quality and generator checks;
 2. validate the plugin in a disposable WordPress installation;
-3. run `composer release:package`;
+3. run `composer release:package` or `composer release:package:ps`;
 4. install and activate that exact ZIP in a clean WordPress instance;
 5. finalize the `CHANGELOG.md` entry with the actual release date;
 6. create the immutable version tag only after the validated commit is final;
@@ -70,5 +84,7 @@ Creating or pushing a tag does **not** trigger GitHub Actions automatically.
 The `Release` workflow is `workflow_dispatch` only. It exists as an optional deliberate release tool when GitHub Actions usage is desired.
 
 When run manually with a semantic version such as `1.0.0`, it validates version metadata, installs dependencies, runs `composer check`, runs `composer scaffold:smoke`, builds **and verifies** the distribution ZIP, then publishes or updates the corresponding GitHub Release asset.
+
+The workflow uses the Bash path because GitHub-hosted release jobs run on Linux. This does not make Bash the only supported local release environment.
 
 Do not use the workflow as a substitute for the documented runtime and distribution gates. In particular, the first `v1.0.0` should only be published after the release checklist issue is complete.
