@@ -63,8 +63,8 @@ jobs:
       - name: Validate scaffold and module generators
         run: composer scaffold:smoke
 
-      - name: Build distribution package
-        run: bash scripts/build-release.sh
+      - name: Build and verify distribution package
+        run: composer release:package
 
       - name: Upload workflow artifact
         uses: actions/upload-artifact@v4
