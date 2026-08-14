@@ -15,7 +15,10 @@ if [[ ! -f "$ZIP_PATH" ]]; then
   exit 1
 fi
 
-mapfile -t entries < <(unzip -Z1 "$ZIP_PATH")
+entries=()
+while IFS= read -r entry; do
+  entries[${#entries[@]}]="$entry"
+done < <(unzip -Z1 "$ZIP_PATH")
 
 if [[ ${#entries[@]} -eq 0 ]]; then
   printf 'Release ZIP is empty: %s\n' "$ZIP_PATH" >&2
