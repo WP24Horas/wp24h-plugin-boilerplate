@@ -54,7 +54,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - Release validation runs `composer check`, scaffold smoke and ZIP verification explicitly.
 - The release workflow is manual-only; creating a version tag no longer consumes GitHub Actions automatically.
 - Customization guidance prefers scaffold-first generation over manual search/replace.
-- Production ZIP excludes generator and development tooling.
-- README documents Site Health, protected REST, module generation and local validation commands.
+- Production ZIP is intentionally lean: source-governance files, development configuration, build metadata, tests, docs and generator tooling are excluded while the main plugin file, `readme.txt`, license and runtime source remain.
+- README documents Site Health, protected REST, module generation, hardening and verified local release packaging commands.
 
 `v1.0.0` will be created only after the documented clean-checkout, generator, WordPress runtime and distribution gates pass. At that point this Unreleased section will be finalized as the first versioned release entry with the actual release date.
