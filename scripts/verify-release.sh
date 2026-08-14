@@ -50,6 +50,7 @@ done
 forbidden_prefixes=(
   "$SLUG/.git/"
   "$SLUG/.github/"
+  "$SLUG/.phpunit.cache/"
   "$SLUG/bin/"
   "$SLUG/docs/"
   "$SLUG/tests/"
@@ -66,16 +67,20 @@ for prefix_path in "${forbidden_prefixes[@]}"; do
 done
 
 forbidden_files=(
+  "$SLUG/.distignore"
+  "$SLUG/.editorconfig"
+  "$SLUG/.gitignore"
+  "$SLUG/.wp-env.json"
   "$SLUG/composer.json"
   "$SLUG/composer.lock"
   "$SLUG/phpcs.xml.dist"
   "$SLUG/phpstan.neon.dist"
   "$SLUG/phpunit.xml.dist"
+  "$SLUG/README.md"
+  "$SLUG/CHANGELOG.md"
+  "$SLUG/CODE_OF_CONDUCT.md"
   "$SLUG/CONTRIBUTING.md"
   "$SLUG/SECURITY.md"
-  "$SLUG/.editorconfig"
-  "$SLUG/.gitignore"
-  "$SLUG/.wp-env.json"
 )
 
 for path in "${forbidden_files[@]}"; do
