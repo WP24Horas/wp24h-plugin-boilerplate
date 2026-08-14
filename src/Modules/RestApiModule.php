@@ -48,8 +48,8 @@ final class RestApiModule implements Module {
 
 		return new WP_REST_Response(
 			array(
-				'headline' => (string) $this->options->get( 'headline', '' ),
-				'message'  => (string) $this->options->get( 'message', '' ),
+				'headline' => (string) Options::display_value( 'headline', $this->options->get( 'headline', '' ) ),
+				'message'  => (string) Options::display_value( 'message', $this->options->get( 'message', '' ) ),
 				'version'  => WP24H_PLUGIN_BOILERPLATE_VERSION,
 			),
 			200

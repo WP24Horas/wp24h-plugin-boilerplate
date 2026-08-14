@@ -50,7 +50,7 @@ if ( file_exists( $wp24h_autoload ) ) {
 register_activation_hook( __FILE__, array( WP24H\PluginBoilerplate\Core\Plugin::class, 'activate' ) );
 
 add_action(
-	'init',
+	'plugins_loaded',
 	static function (): void {
 		WP24H\PluginBoilerplate\Core\Plugin::instance()->boot();
 	}

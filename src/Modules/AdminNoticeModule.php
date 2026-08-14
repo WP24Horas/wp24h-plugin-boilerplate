@@ -35,8 +35,8 @@ final class AdminNoticeModule implements Module {
 		}
 		?>
 		<div class="notice notice-info is-dismissible">
-			<p><strong><?php echo esc_html( (string) $this->options->get( 'headline', '' ) ); ?></strong></p>
-			<p><?php echo esc_html( (string) $this->options->get( 'message', '' ) ); ?></p>
+			<p><strong><?php echo esc_html( (string) Options::display_value( 'headline', $this->options->get( 'headline', '' ) ) ); ?></strong></p>
+			<p><?php echo esc_html( (string) Options::display_value( 'message', $this->options->get( 'message', '' ) ) ); ?></p>
 		</div>
 		<?php
 	}

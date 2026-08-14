@@ -154,7 +154,7 @@ final class SettingsPage {
 	public function render_text_field( array $args ): void {
 		$key       = $args['key'];
 		$type      = $args['type'];
-		$value     = (string) $this->options->get( $key, '' );
+		$value     = (string) Options::display_value( $key, $this->options->get( $key, '' ) );
 		$name      = Options::KEY . '[' . $key . ']';
 		$css_class = 'regular-text';
 

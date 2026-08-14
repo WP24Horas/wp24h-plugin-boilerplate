@@ -39,8 +39,8 @@ final class ShortcodeModule implements Module {
 			'wp24h_boilerplate'
 		);
 
-		$headline = (string) $this->options->get( 'headline', '' );
-		$message  = (string) $this->options->get( 'message', '' );
+		$headline = (string) Options::display_value( 'headline', $this->options->get( 'headline', '' ) );
+		$message  = (string) Options::display_value( 'message', $this->options->get( 'message', '' ) );
 		$color    = (string) $this->options->get( 'accent_color', '#2271b1' );
 
 		ob_start();
