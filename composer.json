@@ -43,6 +43,12 @@
       "@release:build",
       "@release:verify"
     ],
+    "release:build:ps": "powershell -ExecutionPolicy Bypass -File scripts/build-release.ps1",
+    "release:verify:ps": "powershell -ExecutionPolicy Bypass -File scripts/verify-release.ps1",
+    "release:package:ps": [
+      "@release:build:ps",
+      "@release:verify:ps"
+    ],
     "check": [
       "@lint",
       "@analyse",
