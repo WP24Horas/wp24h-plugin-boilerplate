@@ -4,7 +4,7 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [1.0.0] - 2026-08-14
 
 ### Added
 
@@ -34,6 +34,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - Reproducible local release packaging commands: `release:build`, `release:verify` and `release:package`.
 - Structural ZIP verification for required files, top-level layout and forbidden development tooling.
 - PowerShell-native release build and verification scripts plus Composer aliases for Windows environments.
+- Versioned release-validation report covering quality, runtime, scaffold, generated-plugin, packaging and clean-artifact installation evidence.
 
 ### Fixed
 
@@ -42,6 +43,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - Explicit Plugin URI values are rendered literally instead of being interpreted as `preg_replace()` replacement backreferences.
 - Release builds use isolated temporary directories with cleanup instead of a shared fixed path.
 - Release ZIP verification no longer depends on Bash `mapfile`, keeping the script compatible with Bash 3.2 environments such as older/default macOS installations.
+- Windows checkouts preserve LF line endings for PHP and generator executables so PHPCS and generated PHP remain deterministic.
+- Site Health runtime guards remain portable under PHPStan when WordPress stub PHPDoc types are more specific than runtime reality.
+- PHPUnit expectations and hook-registration assertions match the current module behavior.
+- Built-in headline/message defaults no longer trigger translation loading before WordPress is ready.
+- Plugin boot remains on `plugins_loaded`, preserving the public module-registration lifecycle and allowing custom modules to register early `init` callbacks.
 
 ### Changed
 
@@ -58,5 +64,4 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - Production ZIP is intentionally lean: source-governance files, development configuration, build metadata, tests, docs and generator tooling are excluded while the main plugin file, `readme.txt`, license and runtime source remain.
 - Release documentation treats Bash and PowerShell packaging as equivalent local paths to the same verified artifact contract.
 - README documents Site Health, protected REST, module generation, hardening and verified local release packaging commands.
-
-`v1.0.0` will be created only after the documented clean-checkout, generator, WordPress runtime and distribution gates pass. At that point this Unreleased section will be finalized as the first versioned release entry with the actual release date.
+- Built-in display defaults are stored as raw configuration values and translated only when presented, leaving saved user content untouched.
