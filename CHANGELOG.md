@@ -8,6 +8,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Added
 
+- Initial public WP24H Plugin Boilerplate baseline.
+- Composer-based development tooling.
+- WordPress Coding Standards via PHPCS.
+- Static analysis with PHPStan.
+- PHPUnit + Brain Monkey test support.
+- Local WordPress development support with `wp-env`.
+- Security, contribution and community guidance.
 - Safe local scaffolder for generating a new plugin with a custom name, slug, PSR-4 namespace, Composer package and constant prefix.
 - Scaffold documentation with deterministic replacement and safety rules.
 - `composer scaffold -- ...` as the recommended plugin creation flow.
@@ -24,12 +31,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - REST API guide explaining public read-only versus protected administrative routes.
 - Optional `--plugin-uri` support for explicit generated-project metadata.
 - Ownership-neutral generated `SECURITY.md` and `readme.txt` guidance.
+- Reproducible local release packaging commands: `release:build`, `release:verify` and `release:package`.
+- Structural ZIP verification for required files, top-level layout and forbidden development tooling.
 
 ### Fixed
 
 - Module labels can no longer terminate or corrupt generated DocBlocks through `*/` or line breaks.
 - Scaffold plugin names/authors reject control characters and comment-breaking metadata before generation.
 - Explicit Plugin URI values are rendered literally instead of being interpreted as `preg_replace()` replacement backreferences.
+- Release builds use isolated temporary directories with cleanup instead of a shared fixed path.
+- Release ZIP verification no longer depends on Bash `mapfile`, keeping the script compatible with Bash 3.2 environments such as older/default macOS installations.
 
 ### Changed
 
@@ -40,21 +51,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - Scaffold smoke coverage verifies explicit and omitted plugin URI behavior plus neutral security/readme metadata.
 - `composer check` is now a self-contained plugin contract: PHPCS, PHPStan, PHPUnit, retained-tooling syntax lint and generator hardening.
 - Boilerplate-only scaffold validation remains an explicit `composer scaffold:smoke` command so generated Composer scripts never contain dead references.
-- Release validation runs both `composer check` and `composer scaffold:smoke` explicitly.
+- Release validation runs `composer check`, scaffold smoke and ZIP verification explicitly.
 - The release workflow is manual-only; creating a version tag no longer consumes GitHub Actions automatically.
 - Customization guidance prefers scaffold-first generation over manual search/replace.
-- Production ZIP excludes all generator and development tooling.
+- Production ZIP excludes generator and development tooling.
 - README documents Site Health, protected REST, module generation and local validation commands.
 
-## [1.0.0] - 2026-08-12
-
-### Added
-
-- Initial public version of the WP24Horas Plugin Boilerplate.
-- Composer-based development tooling.
-- WordPress Coding Standards via PHPCS.
-- Static analysis with PHPStan.
-- Local WordPress development support with wp-env.
-- GitHub issue and pull request templates.
-- GitHub Actions workflows for continuous integration.
-- Security and contribution guidelines.
+`v1.0.0` will be created only after the documented clean-checkout, generator, WordPress runtime and distribution gates pass. At that point this Unreleased section will be finalized as the first versioned release entry with the actual release date.
