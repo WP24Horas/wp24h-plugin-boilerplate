@@ -20,7 +20,7 @@ Composer was run in the official Composer Docker image. Docker bind mounts on Wi
 | --- | --- | --- | --- |
 | Clean checkout | fresh Git clone with `core.autocrlf=true` | PASS | Working tree initially clean; PHP and `bin/` generator files were LF. |
 | Dependency install | `composer install` | PASS | Completed in Composer container with Docker volume for `vendor/`. |
-| Quality contract | `composer check` | PASS | PHPCS 17 files clean; PHPStan no errors; PHPUnit 9 tests/25 assertions; tooling lint and generator hardening passed. |
+| Quality contract | `composer check` | PASS | Final revalidation passed PHPCS, PHPStan, PHPUnit (11 tests/30 assertions), tooling lint and generator hardening. |
 | Basic scaffold | `composer scaffold:smoke` | PASS | Boilerplate-to-plugin and module generator flow passed. |
 | Full scaffold | `composer scaffold:smoke:full` | PASS | Generated plugin dependency install and `composer check` passed. |
 
@@ -31,7 +31,8 @@ Fresh wp-env instances were started with `WP_DEBUG`, `WP_DEBUG_LOG`, and `WP_DEB
 | Behavior | Result | Evidence |
 | --- | --- | --- |
 | Plugin activation | PASS | `wp plugin list --format=json` reported active version `1.0.0`. |
-| Early translation notice regression | PASS | Plugin now boots at `init`; fresh runtime showed no plugin warning/notice/fatal. |
+| Early translation notice regression | PASS | Plugin boot remains on `plugins_loaded`; built-in headline/message defaults are translated only at presentation time. Fresh runtime showed no plugin warning/notice/fatal. |
+| Module lifecycle compatibility | PASS | A custom filtered module registered an `init` callback at priority `1`, and the callback executed in the same request (`wp24h_lifecycle_probe_ran=yes`). |
 | Default settings | PASS | `wp option get wp24h_plugin_boilerplate_settings --format=json` returned the documented defaults. |
 | Settings API | PASS | Admin-context runtime invocation registered `wp24h_plugin_boilerplate_settings`. |
 | Public REST | PASS | `GET /wp-json/wp24h-boilerplate/v1/message` returned HTTP 200 and expected headline/message/version. |
@@ -77,7 +78,7 @@ The verified ZIP was installed into a fresh WordPress 7.0.3 / PHP 8.1.34 wp-env 
 | `1b04835` | Windows checkout converted PHP files to CRLF and failed PHPCS. | `.gitattributes`: `*.php text eol=lf`. |
 | `933e1a0` | PHPStan treated stub PHPDoc types as certain and rejected portable Site Health code. | Set `treatPhpDocTypesAsCertain: false`. |
 | `683e5e5` | PHPUnit mock expectation was stale; two tests were risky. | Correct call count and assertion counts in tests only. |
-| `54091f7` | WordPress 6.7+ warned that translations loaded too early. | Boot plugin at `init`. |
+| `54091f7` | WordPress 6.7+ warned that translations loaded too early. | Initial correction moved boot to `init`; PR review later showed this changed the extension lifecycle. |
 | `88f2eaa` | Extensionless `bin/` generator scripts retained CRLF and generated CRLF PHP in Windows checkouts. | `.gitattributes`: `bin/* text eol=lf`. |
 | `1239d0d` | PR #7 review found that moving all boot work to `init` could skip custom modules' earlier `init` callbacks. | Restored `plugins_loaded`; made configuration defaults raw and translate them only at presentation. |
 | `dd51606` / `c0aa4ee` | The lifecycle correction exposed PHPCS literal/spacing rules and a stale scaffold assertion. | Used literal translation strings and aligned the smoke expectation. |
@@ -88,11 +89,11 @@ The PR review correctly identified a lifecycle regression in `54091f7`. `Plugin:
 
 Regression coverage was added for raw defaults and the bootstrap hook. A wp-env lifecycle probe injected a custom module through `wp24h_plugin_boilerplate_modules` before boot, enabled it through the settings filter, and registered an `init` callback at priority `1`. The callback executed during that request (`wp24h_lifecycle_probe_ran=yes`). The debug log remained absent/empty and public REST stayed HTTP 200.
 
-After the lifecycle correction, a fresh LF checkout passed `composer check` (11 tests, 30 assertions) and `composer scaffold:smoke:full`. The PowerShell ZIP was rebuilt and verified.
+After the lifecycle correction, a fresh LF checkout passed `composer check` (11 tests, 30 assertions) and `composer scaffold:smoke:full`. The PowerShell ZIP was rebuilt and verified, and the updated artifact was installed in a clean WordPress instance where activation and public REST both passed with a clean debug log.
 
 ## Remaining manual checks
 
-None required for the documented release gate. All required behaviors were proved programmatically. No tag, GitHub Release, GitHub Actions run, visibility change, or push was made.
+None required for the documented release gate. All required behaviors were proved programmatically. No tag, GitHub Release or GitHub Actions run was created during validation.
 
 ## Release recommendation
 
