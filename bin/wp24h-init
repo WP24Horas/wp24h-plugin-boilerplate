@@ -43,6 +43,12 @@ if ($name === '') {
     $errors[] = '--name is required.';
 }
 
+foreach (['--name' => $name, '--author' => $author] as $label => $value) {
+    if ($value !== '' && hasUnsafeHeaderText($value)) {
+        $errors[] = $label . ' must not contain control characters or the sequence */.';
+    }
+}
+
 if (!preg_match('/^[a-z0-9]+(?:-[a-z0-9]+)*$/', $slug)) {
     $errors[] = '--slug must use lowercase kebab-case (example: acme-orders).';
 }
@@ -66,6 +72,10 @@ if (!preg_match('/^[a-z0-9]+(?:-[a-z0-9]+)*$/', $vendor)) {
 foreach (['--author-uri' => $authorUri, '--plugin-uri' => $pluginUri] as $label => $uri) {
     if ($uri !== '' && filter_var($uri, FILTER_VALIDATE_URL) === false) {
         $errors[] = $label . ' must be a valid URL.';
+    }
+
+    if ($uri !== '' && hasUnsafeHeaderText($uri)) {
+        $errors[] = $label . ' must not contain control characters or the sequence */.';
     }
 }
 
@@ -211,6 +221,7 @@ Safety:
   - never overwrites an existing target;
   - excludes .git, vendor, dist and the boilerplate composer.lock;
   - replaces kebab, snake, REST, namespace and constant identities deterministically;
+  - rejects header metadata that could break generated PHP comments;
   - never invents a WP24Horas repository URL for a generated plugin;
   - generates ownership-neutral README, readme.txt, changelog and security guidance;
   - removes scaffolder-only commands and tooling from the generated plugin;
@@ -219,6 +230,11 @@ TXT;
 
     fwrite($exitCode === 0 ? STDOUT : STDERR, $message . "\n");
     exit($exitCode);
+}
+
+function hasUnsafeHeaderText(string $value): bool
+{
+    return str_contains($value, '*/') || preg_match('/[\x00-\x1F\x7F]/u', $value) === 1;
 }
 
 function absolutePath(string $path): string
@@ -308,7 +324,11 @@ function normalizeGeneratedMainHeader(string $mainFile, string $pluginUri): void
     if ($pluginUri === '') {
         $contents = (string) preg_replace('/^ \* Plugin URI:\s+.*\R/m', '', $contents);
     } else {
-        $contents = (string) preg_replace('/^ \* Plugin URI:\s+.*$/m', ' * Plugin URI:  ' . $pluginUri, $contents);
+        $contents = (string) preg_replace_callback(
+            '/^ \* Plugin URI:\s+.*$/m',
+            static fn (): string => ' * Plugin URI:  ' . $pluginUri,
+            $contents
+        );
     }
 
     if (file_put_contents($mainFile, $contents) === false) {
