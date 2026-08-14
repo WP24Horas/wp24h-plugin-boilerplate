@@ -19,10 +19,11 @@ O projeto funciona imediatamente após ser copiado, mesmo sem `vendor/`, e ofere
 - Matriz de compatibilidade para PHP 8.1, 8.2, 8.3 e 8.4 em workflow manual.
 - Ambiente local opcional com `wp-env`.
 - Política de desinstalação segura: dados são preservados por padrão.
-- Build reproduzível de ZIP e workflow de release preparado para uso quando uma tag for publicada.
+- Build reproduzível e verificado de ZIP, com workflow de release opcional e manual-only.
 - Scaffolder seguro para criar um plugin novo sem uma sequência manual de `search/replace`.
 - Gerador de módulos que continua disponível dentro dos plugins criados pelo scaffolder.
 - Smoke test local que valida o fluxo boilerplate → plugin → módulo e pode executar uma prova completa com Composer.
+- Hardening tests para impedir que metadata de CLI quebre headers, DocBlocks ou o PHP gerado.
 
 ## Criar um plugin novo
 
@@ -71,7 +72,7 @@ Consulte [docs/module-api.md](docs/module-api.md).
 
 A versão atual do plugin é **1.0.0**, mas ainda não existe tag ou GitHub Release publicada neste repositório.
 
-A primeira release deve ser criada somente após validação local/runtime da versão atual. O processo completo está em [docs/releasing.md](docs/releasing.md).
+O changelog permanece em `Unreleased` até os gates de qualidade, runtime e distribuição serem concluídos. A primeira release deve ser criada somente após validação local/runtime da versão atual. O processo completo está em [docs/releasing.md](docs/releasing.md).
 
 ## Instalação rápida da base
 
@@ -133,8 +134,11 @@ composer lint:fix                # Correções automáticas seguras
 composer analyse                 # PHPStan
 composer test                    # PHPUnit
 composer tooling:lint            # Sintaxe PHP das ferramentas CLI mantidas no projeto
-composer check                   # Lint + análise + testes + tooling lint
-bash scripts/build-release.sh    # Gera dist/wp24h-plugin-boilerplate.zip
+composer tooling:hardening       # Regressões de segurança dos geradores
+composer check                   # Lint + análise + testes + tooling lint + hardening
+composer release:build           # Gera o ZIP de distribuição
+composer release:verify          # Valida estrutura e exclusões do ZIP
+composer release:package         # Build + verify em um único gate local
 ```
 
 `composer check` é autocontido e continua funcionando no plugin gerado. O smoke do scaffolder é deliberadamente um comando separado porque existe apenas na base.
@@ -143,7 +147,7 @@ O processo completo de publicação está documentado em [docs/releasing.md](doc
 
 ## CI e custo
 
-O workflow de qualidade está atualmente em modo manual (`workflow_dispatch`). O loop normal de desenvolvimento usa validação local, preservando a matriz de compatibilidade para execuções deliberadas sem consumir GitHub Actions a cada push.
+Os workflows de qualidade e release estão atualmente em modo manual (`workflow_dispatch`). O loop normal de desenvolvimento usa validação local, preservando a matriz de compatibilidade e o fluxo de release para execuções deliberadas sem consumir GitHub Actions a cada push, pull request ou criação de tag.
 
 ## Ecossistema WordPress relacionado
 
