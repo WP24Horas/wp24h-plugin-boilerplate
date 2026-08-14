@@ -37,6 +37,12 @@
     "scaffold": "php bin/wp24h-init",
     "scaffold:smoke": "php scripts/smoke-scaffold.php",
     "scaffold:smoke:full": "php scripts/smoke-scaffold.php --full",
+    "release:build": "bash scripts/build-release.sh",
+    "release:verify": "bash scripts/verify-release.sh",
+    "release:package": [
+      "@release:build",
+      "@release:verify"
+    ],
     "check": [
       "@lint",
       "@analyse",
